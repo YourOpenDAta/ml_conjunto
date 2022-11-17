@@ -10,7 +10,7 @@ import org.apache.spark.sql.types.{IntegerType, DoubleType, StructField, StructT
 object TrainingJobBarcelona {
 
   def main(args: Array[String]): Unit = {
-    train().write.overwrite().save("./prediction-job/model")
+    train().write.overwrite().save("./prediction-job/model/barcelona")
 
   }
   

@@ -1,10 +1,10 @@
 curl -v  orion:1026/ngsi-ld/v1/subscriptions/ -s -S -H 'Content-Type: application/ld+json' -d @- <<EOF
 {
-  "description": "A subscription to get request predictions for bikes in Santander",
+  "description": "A subscription to get request predictions for bikes in Santander and Barcelona",
   "type": "Subscription",
   "entities": [{
-    "id": "urn:ngsi-ld:ReqSantanderBikePrediction1",
-    "type": "ReqSantanderBikePrediction"
+    "id": "urn:ngsi-ld:ReqBikePrediction1",
+    "type": "ReqBikePrediction"
     }],
   "watchedAttributes": [
       "predictionId",
@@ -12,11 +12,12 @@ curl -v  orion:1026/ngsi-ld/v1/subscriptions/ -s -S -H 'Content-Type: applicatio
       "idStation",
       "month",
       "hour",
-      "weekday"
+      "weekday",
+      "ciudad"
     ],
   "notification": {
     "endpoint": {
-      "uri": "http://spark-master-bike-santander:9002",
+      "uri": "http://spark-master-bike-conjunto:9002",
       "accept": "application/json"
     }
   },
