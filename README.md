@@ -63,21 +63,21 @@ curl --location --request GET 'http://localhost:1026/ngsi-ld/v1/subscriptions/'
 ```
 
 ```
-curl --location --request GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ReqBarcelonaBikePrediction1'
+curl --location --request GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ReqBikePrediction1'
 ```
 
 ```
-curl --location --request GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ResBarcelonaBikePrediction1'
+curl --location --request GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ResBikePrediction1'
 ```
 
-2) Update the `ReqBarcelonaBikePrediction1`
+2) Update the `ReqBikePrediction1`
 ```
-curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ReqBarcelonaBikePrediction1/attrs' \
+curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ReqBikePrediction1/attrs' \
 --header 'Content-Type: application/json' \
 --data-raw '{
    "idStation": {
       "type":"Property",
-      "value": [VALUE from 1 to 505]
+      "value": [VALUE from 1 to 17 in Santander or from 1 to 505 in Barcelona]
    },
    "weekday":{
       "type":"Property",
@@ -86,6 +86,14 @@ curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:n
    "hour":{
       "type":"Property",
       "value": [VALUE from 0 to 23]
+   },
+   "month":{
+       "type": "Property",
+       "value": [VALUE from 1 to 12]
+   },
+   "ciudad":{
+       "type": "Property",
+       "value": ["Santander" or "Barcelona"]
    },
    "predictionId":{
       "type":"Property",
@@ -96,9 +104,10 @@ curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:n
       "value":"Fn0kKHEF-dOcr311AAAF"
    }
 }'
+
 ```
 
-3) See if the `ResBarcelonaBikePrediction1` changes
+3) See if the `ResBikePrediction1` changes
 
 ```
 curl --location --request GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ResBarcelonaBikePrediction1'
