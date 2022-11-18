@@ -142,6 +142,10 @@ Response:
    "hour":{
       "type":"Property",
       "value": [VALUE set at the request]
+   },
+   "month":{
+      "type":"Property",
+      "value": [VALUE set at the request]
    }
 ```
 
