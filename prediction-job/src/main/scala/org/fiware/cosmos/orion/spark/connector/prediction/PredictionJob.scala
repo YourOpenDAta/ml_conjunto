@@ -90,6 +90,15 @@ object PredictionJob {
         val predictionId = ent.attrs("predictionId")("value").toString
         val num = (idStation.toInt - 1 )
         val idVariationStation = num * 24 + hour
+        val month = ent.attrs("month")("value").toString.toInt
+        val dateNineHoursBefore = dateTimeFormatter.format(new Date(System.currentTimeMillis() - 3600 * 1000 *9))
+        val dateSixHoursBefore = dateTimeFormatter.format(new Date(System.currentTimeMillis() - 3600 * 1000 *6))
+        val dateTenHoursBefore = dateTimeFormatter.format(new Date(System.currentTimeMillis() - 3600 * 1000 *10))
+
+        var lastMeasure: Int = 0
+        var sixHoursAgoMeasure: Int = 0
+        var nineHoursAgoMeasure: Int = 0
+        var tenHoursAgoMeasure: Int = 0
         
         val variationStation: Double = 
         if (nombreCiudad == "Barcelona") {
@@ -98,34 +107,29 @@ object PredictionJob {
            variationStationsSantander(idVariationStation.toString).toString.toDouble
         }
         
-        val dateNineHoursBefore = dateTimeFormatter.format(new Date(System.currentTimeMillis() - 3600 * 1000 *9))
-        val dateSixHoursBefore = dateTimeFormatter.format(new Date(System.currentTimeMillis() - 3600 * 1000 *6))
+        if (nombreCiudad == "Barcelona") {
+          val mongoUri = s"mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo:27017/bikes_barcelona.historical?authSource=admin"
+          val mongoClient = MongoClients.create(mongoUri);
+          val collection = mongoClient.getDatabase("bikes_barcelona").getCollection("historical")
+          val filter1 = and(gt("update_date", dateNineHoursBefore), equal("station_id", idStation.toString))
+          val filter2 = and(gt("update_date", dateSixHoursBefore), equal("station_id", idStation.toString))
+          val docs1 = collection.find(filter1)
+          val docs2 = collection.find(filter2)
+          lastMeasure = docs1.sort(Sorts.descending("update_date")).first().getString("num_bikes_available").toInt
+          nineHoursAgoMeasure = docs1.sort(Sorts.ascending("update_date")).first().getString("num_bikes_available").toInt
+          sixHoursAgoMeasure = docs2.sort(Sorts.ascending("update_date")).first().getString("num_bikes_available").toInt
+        }
 
-        // val mongoUri = s"mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo:27017/bikes_barcelona.historical?authSource=admin"
-        // val mongoClient = MongoClients.create(mongoUri);
-        // val collection = mongoClient.getDatabase("bikes_barcelona").getCollection("historical")
-        // val filter1 = and(gt("update_date", dateNineHoursBefore), equal("station_id", idStation.toString))
-        // val filter2 = and(gt("update_date", dateSixHoursBefore), equal("station_id", idStation.toString))
-        // val docs1 = collection.find(filter1)
-        // val docs2 = collection.find(filter2)
-        // val lastMeasure = docs1.sort(Sorts.descending("update_date")).first().getString("num_bikes_available").toInt
-        // val nineHoursAgoMeasure = docs1.sort(Sorts.ascending("update_date")).first().getString("num_bikes_available").toInt
-        // val sixHoursAgoMeasure = docs2.sort(Sorts.ascending("update_date")).first().getString("num_bikes_available").toInt
-        val lastMeasure = 5
-        val nineHoursAgoMeasure = 10
-        val sixHoursAgoMeasure = 8
-    
-        val dateTenHoursBefore = dateTimeFormatter.format(new Date(System.currentTimeMillis() - 3600 * 1000 *10))
-        val month = ent.attrs("month")("value").toString.toInt
-        // val mongoUri = s"mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo:27017/bikes_santander.historical?authSource=admin"
-        // val mongoClient = MongoClients.create(mongoUri);
-        // val collection = mongoClient.getDatabase("bikes_santander").getCollection("historical")
-        // val filter = and(gt("update_date", dateTenHoursBefore), equal("dc:identifier", idStation.toString))
-        // val docs = collection.find(filter)
-        // val lastMeasure = docs.sort(Sorts.descending("update_date")).first().getString("ayto:bicicletas_libres").toInt
-        // val tenHoursAgoMeasure = docs.sort(Sorts.ascending("update_date")).first().getString("ayto:bicicletas_libres").toInt
-        val tenHoursAgoMeasure = 10
-        
+        if (nombreCiudad == "Santander") {
+          val mongoUri = s"mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo:27017/bikes_santander.historical?authSource=admin"
+          val mongoClient = MongoClients.create(mongoUri);
+          val collection = mongoClient.getDatabase("bikes_santander").getCollection("historical")
+          val filter = and(gt("update_date", dateTenHoursBefore), equal("dc:identifier", idStation.toString))
+          val docs = collection.find(filter)
+          lastMeasure = docs.sort(Sorts.descending("update_date")).first().getString("ayto:bicicletas_libres").toInt
+          tenHoursAgoMeasure = docs.sort(Sorts.ascending("update_date")).first().getString("ayto:bicicletas_libres").toInt
+        }
+            
         PredictionRequest(idStation, lastMeasure, tenHoursAgoMeasure, sixHoursAgoMeasure, nineHoursAgoMeasure, variationStation, weekday, hour, month, socketId, predictionId, nombreCiudad)
 
       })
