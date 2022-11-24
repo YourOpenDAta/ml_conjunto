@@ -20,19 +20,9 @@ import org.mongodb.scala.model.Filters.{equal, gt, and}
 import com.mongodb.client.MongoClients
 import com.mongodb.client.model.Sorts
 
-case class PredictionResponse(socketId: String, predictionId: String, predictionValue: Int, idStation: Int, weekday: Int, hour: Int, month: Int) {
-    override def toString :String = s"""{
-    "socketId": { "value": "${socketId}", "type": "Property"},
-    "predictionId": { "value":"${predictionId}", "type": "Property"},
-    "predictionValue": { "value":${predictionValue}, "type": "Property"},
-    "idStation": { "value":"${idStation}", "type": "Property"},
-    "weekday": { "value":${weekday}, "type": "Property"},
-    "hour": { "value": ${hour}, "type": "Property"},
-    "month": { "value": ${month}, "type": "Property"}
-    }""".trim()
-    }
+import org.fiware.cosmos.orion.spark.connector.prediction.PredictionResponse
 
-case class PredictionRequest(id_estacion: Int, Ultima_medicion: Int, Diezhora_anterior: Int, Seishora_anterior: Int, Nuevehora_anterior: Int, variacion_estaciones: Double, dia: Int, hora: Int, num_mes: Int, socketId: String, predictionId: String, ciudad: String)
+case class PredictionRequestBarcelona(id_estacion: Int, Ultima_medicion: Int, Diezhora_anterior: Int, Seishora_anterior: Int, Nuevehora_anterior: Int, variacion_estaciones: Double, dia: Int, hora: Int, num_mes: Int, socketId: String, predictionId: String, ciudad: String)
 
 class PredictionJobBarcelona (eventStream: ReceiverInputDStream[NgsiEventLD]){
 
@@ -49,7 +39,6 @@ class PredictionJobBarcelona (eventStream: ReceiverInputDStream[NgsiEventLD]){
         }
 
         val variationStationsBarcelona = readFile("./prediction-job/array-load.txt")
-
         val dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
         dateTimeFormatter.setTimeZone(TimeZone.getTimeZone("UTC"))
 
@@ -85,7 +74,7 @@ class PredictionJobBarcelona (eventStream: ReceiverInputDStream[NgsiEventLD]){
                 nineHoursAgoMeasure = docs1.sort(Sorts.ascending("update_date")).first().getString("num_bikes_available").toInt
                 sixHoursAgoMeasure = docs2.sort(Sorts.ascending("update_date")).first().getString("num_bikes_available").toInt
 
-                PredictionRequest(idStation, lastMeasure, 0, sixHoursAgoMeasure, nineHoursAgoMeasure, variationStation, weekday, hour, month, socketId, predictionId, nombreCiudad)
+                PredictionRequestBarcelona(idStation, lastMeasure, 0, sixHoursAgoMeasure, nineHoursAgoMeasure, variationStation, weekday, hour, month, socketId, predictionId, nombreCiudad)
         
             })    
 
@@ -95,7 +84,6 @@ class PredictionJobBarcelona (eventStream: ReceiverInputDStream[NgsiEventLD]){
             .transform(rdd => {
                 val df = spark.createDataFrame(rdd)
 
-                // if (nombreCiudad == "Barcelona") {
                 val predictions = modelBarcelona
                 .transform(df)
                 .select("socketId","predictionId", "prediction", "id_estacion", "dia", "hora", "num_mes")
