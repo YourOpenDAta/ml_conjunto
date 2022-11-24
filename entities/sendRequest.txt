@@ -7,11 +7,11 @@ curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:n
    },
    "weekday":{
       "type":"Property",
-      "value": 5
+      "value": 3
    },
    "hour":{
       "type":"Property",
-      "value": 4
+      "value": 17
    },
    "month":{
        "type": "Property",
