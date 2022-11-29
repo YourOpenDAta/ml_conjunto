@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.feature.VectorAssembler","timestamp":1669749812859,"sparkVersion":"2.4.5","uid":"vecAssembler_ef7e88ffccf3","paramMap":{"inputCols":["id_estacion","Ultima_medicion","Diezhora_anterior","dia","num_mes","hora","variacion_estaciones"],"outputCol":"features"},"defaultParamMap":{"outputCol":"vecAssembler_ef7e88ffccf3__output","handleInvalid":"error"}}

@@ -70,6 +70,10 @@ curl orion:1026/ngsi-ld/v1/entities -s -S -H 'Content-Type: application/ld+json'
     "value": 0,
     "type": "Property"
   },
+  "name": {
+    "value": 0,
+    "type": "Property"
+  },
   "@context": [
     "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld"
   ]

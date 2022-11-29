@@ -18,9 +18,10 @@ import com.mongodb.client.model.Sorts
 
 import prediction.PredictionJobSantander
 import prediction.PredictionJobBarcelona
+import prediction.PredictionJobMalaga
 import org.apache.spark.streaming.dstream.DStream
 
-case class PredictionResponse(socketId: String, predictionId: String, predictionValue: Int, idStation: Int, weekday: Int, hour: Int, month: Int) {
+case class PredictionResponse(socketId: String, predictionId: String, predictionValue: Int, idStation: Int, weekday: Int, hour: Int, month: Int, name: String) {
     override def toString :String = s"""{
     "socketId": { "value": "${socketId}", "type": "Property"},
     "predictionId": { "value":"${predictionId}", "type": "Property"},
@@ -68,18 +69,20 @@ object PredictionJob {
     
     val event1 = new PredictionJobBarcelona(eventStream)
     val event2 = new PredictionJobSantander(eventStream)
+    val event3 = new PredictionJobMalaga(eventStream)
     var predictionDataStream :  DStream[PredictionResponse] = event1.predict(MONGO_USERNAME, MONGO_PASSWORD, spark)
 
     if (nombreCiudad == "Barcelona"){
-         //var event = new PredictionJobBarcelona(eventStream)
-         predictionDataStream = event1.predict(MONGO_USERNAME, MONGO_PASSWORD, spark)
+        predictionDataStream = event1.predict(MONGO_USERNAME, MONGO_PASSWORD, spark)
     } 
     
     if (nombreCiudad == "Santander"){
-          //var event = new PredictionJobSantander(eventStream)
-          predictionDataStream = event2.predict(MONGO_USERNAME, MONGO_PASSWORD, spark)
+        predictionDataStream = event2.predict(MONGO_USERNAME, MONGO_PASSWORD, spark)
     }
 
+    if (nombreCiudad == "Malaga") {
+        predictionDataStream = event3.predict(spark)
+    }
 
     // Convert the output to an OrionSinkObject and send to Context Broker
     val sinkDataStream = predictionDataStream
