@@ -72,7 +72,6 @@ object PredictionJob {
 
     val event4 = new GetCiudad(eventStream)
     var nombreCiudad = event4.getCity()
-    
     println(s"nombreCiudad es: $nombreCiudad")
 
     val event1 = new PredictionJobBarcelona(eventStream)

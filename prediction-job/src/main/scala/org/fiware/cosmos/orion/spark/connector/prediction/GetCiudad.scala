@@ -14,7 +14,6 @@ class GetCiudad(eventStream: ReceiverInputDStream[NgsiEventLD]){
                 println(s"ENTITY RECEIVED GetCiudad: $ent")
                 nombreCiudad = ent.attrs("ciudad")("value").toString
             })
-        
         return nombreCiudad
     }
 }

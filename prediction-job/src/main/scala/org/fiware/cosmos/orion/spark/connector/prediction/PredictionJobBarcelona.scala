@@ -84,7 +84,6 @@ class PredictionJobBarcelona (eventStream: ReceiverInputDStream[NgsiEventLD]){
         
             })    
 
-
             // Feed each entity into the prediction model
             val predictionDataStream = processedDataStream
             .transform(rdd => {

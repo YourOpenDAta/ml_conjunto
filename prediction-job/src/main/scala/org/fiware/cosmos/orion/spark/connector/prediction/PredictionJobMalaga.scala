@@ -18,7 +18,6 @@ import org.fiware.cosmos.orion.spark.connector.NgsiEventLD
 import org.apache.spark.streaming.dstream.DStream
 import org.fiware.cosmos.orion.spark.connector.prediction.PredictionResponse
 
-//cambiado por Pablo y luego por cris
 case class PredictionRequestMalaga(name: String, weekday: Int, hour: Int, month: Int, socketId: String, predictionId: String, ciudad: String)
 
 class PredictionJobMalaga(eventStream: ReceiverInputDStream[NgsiEventLD]) {

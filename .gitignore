@@ -5,3 +5,4 @@ prediction-job/*.csv
 .env
 other_docs
 borra_entities
+
