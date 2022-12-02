@@ -4,7 +4,4 @@ prediction-job/bin
 prediction-job/*.csv
 .env
 other_docs
-Prediction&SubscriptionEntitiesBarcelona.sh
-Prediction&SubscriptionEntitiesSantander.sh
-Prediction&SubscriptionEntitiesMalaga.sh
-createResponseEntities.sh
+borra_entities

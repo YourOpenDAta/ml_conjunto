@@ -19,7 +19,7 @@ import org.apache.spark.streaming.dstream.DStream
 import org.fiware.cosmos.orion.spark.connector.prediction.PredictionResponse
 
 //cambiado por Pablo y luego por cris
-case class PredictionRequestMalaga(name: String, weekday: Int, hour: Int, month: Int, socketId: String, predictionId: String)
+case class PredictionRequestMalaga(name: String, weekday: Int, hour: Int, month: Int, socketId: String, predictionId: String, ciudad: String)
 
 class PredictionJobMalaga(eventStream: ReceiverInputDStream[NgsiEventLD]) {
 
@@ -33,14 +33,15 @@ class PredictionJobMalaga(eventStream: ReceiverInputDStream[NgsiEventLD]) {
         val processedDataStream = eventStream
         .flatMap(event => event.entities)
         .map(ent => {
-        println(s"ENTITY RECEIVED: $ent")
+        println(s"ENTITY RECEIVED MALAGA: $ent")
+        val nombreCiudad = ent.attrs("ciudad")("value").toString
         val month = ent.attrs("month")("value").toString.toInt
         val name = ent.attrs("idStation")("value").toString
         val hour = ent.attrs("hour")("value").toString.toInt
         val weekday = ent.attrs("weekday")("value").toString.toInt
         val socketId = ent.attrs("socketId")("value").toString
         val predictionId = ent.attrs("predictionId")("value").toString
-        PredictionRequestMalaga(name, weekday, hour, month, socketId, predictionId)
+        PredictionRequestMalaga(name, weekday, hour, month, socketId, predictionId, nombreCiudad)
       })
 
         // Feed each entity into the prediction model
@@ -49,7 +50,7 @@ class PredictionJobMalaga(eventStream: ReceiverInputDStream[NgsiEventLD]) {
         val df = spark.createDataFrame(rdd)
         val predictions = model
         .transform(df)
-        .select("socketId","predictionId", "prediction", "name", "weekday", "hour", "month")
+        .select("socketId","predictionId", "prediction", "name", "weekday", "hour", "month", "ciudad")
 
         predictions.toJavaRDD
     })
@@ -61,7 +62,8 @@ class PredictionJobMalaga(eventStream: ReceiverInputDStream[NgsiEventLD]) {
         pred.get(4).toString.toInt,
         pred.get(5).toString.toInt,
         pred.get(6).toString.toInt,
-        pred.get(3).toString
+        pred.get(3).toString,
+        pred.get(7).toString
       )
     )
 

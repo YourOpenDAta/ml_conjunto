@@ -45,11 +45,11 @@ class PredictionJobBarcelona (eventStream: ReceiverInputDStream[NgsiEventLD]){
         val processedDataStream = eventStream 
             .flatMap(event => event.entities)
             .map(ent => {
-                println(s"ENTITY RECEIVED: $ent")
+                println(s"ENTITY RECEIVED BARCELONA: $ent")
                 var nombreCiudad = ent.attrs("ciudad")("value").toString
                 var idStation = 1
                 if (nombreCiudad != "Barcelona") {
-                    idStation = 1
+                    idStation = 2
                 } else {
                     idStation = ent.attrs("idStation")("value").toString.toInt
                 }
@@ -63,22 +63,22 @@ class PredictionJobBarcelona (eventStream: ReceiverInputDStream[NgsiEventLD]){
                 var month = ent.attrs("month")("value").toString.toInt
                 var dateNineHoursBefore = dateTimeFormatter.format(new Date(System.currentTimeMillis() - 3600 * 1000 *9))
                 var dateSixHoursBefore = dateTimeFormatter.format(new Date(System.currentTimeMillis() - 3600 * 1000 *6))
-                var lastMeasure: Int = 10 //cambiado para pruebas
-                var sixHoursAgoMeasure: Int = 3 //cambiado para pruebas
-                var nineHoursAgoMeasure: Int = 4 //cambiado para pruebas
+                var lastMeasure: Int = 0 //cambiado para pruebas
+                var sixHoursAgoMeasure: Int = 0 //cambiado para pruebas
+                var nineHoursAgoMeasure: Int = 0 //cambiado para pruebas
                 var variationStation: Double = 0
 
-                // val mongoUri = s"mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo:27017/bikes_barcelona.historical?authSource=admin"
-                // val mongoClient = MongoClients.create(mongoUri)
-                // val collection = mongoClient.getDatabase("bikes_barcelona").getCollection("historical")
-                // val filter1 = and(gt("update_date", dateNineHoursBefore), equal("station_id", idStation.toString))
-                // val filter2 = and(gt("update_date", dateSixHoursBefore), equal("station_id", idStation.toString))
-                // val docs1 = collection.find(filter1)
-                // val docs2 = collection.find(filter2)
+                val mongoUri = s"mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo:27017/bikes_barcelona.historical?authSource=admin"
+                val mongoClient = MongoClients.create(mongoUri)
+                val collection = mongoClient.getDatabase("bikes_barcelona").getCollection("historical")
+                val filter1 = and(gt("update_date", dateNineHoursBefore), equal("station_id", idStation.toString))
+                val filter2 = and(gt("update_date", dateSixHoursBefore), equal("station_id", idStation.toString))
+                val docs1 = collection.find(filter1)
+                val docs2 = collection.find(filter2)
                 variationStation = variationStationsBarcelona(idVariationStation).toString.toDouble
-                // lastMeasure = docs1.sort(Sorts.descending("update_date")).first().getString("num_bikes_available").toInt
-                // nineHoursAgoMeasure = docs1.sort(Sorts.ascending("update_date")).first().getString("num_bikes_available").toInt
-                // sixHoursAgoMeasure = docs2.sort(Sorts.ascending("update_date")).first().getString("num_bikes_available").toInt
+                lastMeasure = docs1.sort(Sorts.descending("update_date")).first().getString("num_bikes_available").toInt
+                nineHoursAgoMeasure = docs1.sort(Sorts.ascending("update_date")).first().getString("num_bikes_available").toInt
+                sixHoursAgoMeasure = docs2.sort(Sorts.ascending("update_date")).first().getString("num_bikes_available").toInt
 
                 PredictionRequestBarcelona(idStation, lastMeasure, 0, sixHoursAgoMeasure, nineHoursAgoMeasure, variationStation, weekday, hour, month, socketId, predictionId, nombreCiudad)
         
@@ -92,7 +92,7 @@ class PredictionJobBarcelona (eventStream: ReceiverInputDStream[NgsiEventLD]){
 
                 val predictions = modelBarcelona
                 .transform(df)
-                .select("socketId","predictionId", "prediction", "id_estacion", "dia", "hora", "num_mes")
+                .select("socketId","predictionId", "prediction", "id_estacion", "dia", "hora", "num_mes", "ciudad")
 
                 predictions.toJavaRDD
         
@@ -105,7 +105,8 @@ class PredictionJobBarcelona (eventStream: ReceiverInputDStream[NgsiEventLD]){
                 pred.get(4).toString.toInt,
                 pred.get(5).toString.toInt,
                 pred.get(6).toString.toInt,
-                "null"
+                "null",
+                pred.get(7).toString
             )
             )
 

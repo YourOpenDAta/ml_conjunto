@@ -39,7 +39,7 @@ class PredictionJobSantander(eventStream: ReceiverInputDStream[NgsiEventLD]){
         val processedDataStream = eventStream 
             .flatMap(event => event.entities)
             .map(ent => {
-                println(s"ENTITY RECEIVED: $ent")
+                println(s"ENTITY RECEIVED SANTANDER: $ent")
                 var nombreCiudad = ent.attrs("ciudad")("value").toString
                 var idStation = 1
                 if (nombreCiudad != "Santander") {
@@ -63,19 +63,14 @@ class PredictionJobSantander(eventStream: ReceiverInputDStream[NgsiEventLD]){
                     idVariationStation = 10
                 }
 
-                // val mongoUri = s"mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo:27017/bikes_santander.historical?authSource=admin"
-                // val mongoClient = MongoClients.create(mongoUri);
-                // val collection = mongoClient.getDatabase("bikes_santander").getCollection("historical")
-                // val filter = and(gt("update_date", dateTenHoursBefore), equal("dc:identifier", idStation.toString))
-                // val docs = collection.find(filter)
-                // val lastMeasure = docs.sort(Sorts.descending("update_date")).first().getString("ayto:bicicletas_libres").toInt
-                // val tenHoursAgoMeasure = docs.sort(Sorts.ascending("update_date")).first().getString("ayto:bicicletas_libres").toInt
+                val mongoUri = s"mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo:27017/bikes_santander.historical?authSource=admin"
+                val mongoClient = MongoClients.create(mongoUri);
+                val collection = mongoClient.getDatabase("bikes_santander").getCollection("historical")
+                val filter = and(gt("update_date", dateTenHoursBefore), equal("dc:identifier", idStation.toString))
+                val docs = collection.find(filter)
+                val lastMeasure = docs.sort(Sorts.descending("update_date")).first().getString("ayto:bicicletas_libres").toInt
+                val tenHoursAgoMeasure = docs.sort(Sorts.ascending("update_date")).first().getString("ayto:bicicletas_libres").toInt
                 val variationStation = variationStationsSantander(idVariationStation.toString).toString.toDouble
-
-                val lastMeasure = 5
-                val tenHoursAgoMeasure = 10
-
-                // idStation = ent.attrs("idStation")("value").toString.toInt
 
                 PredictionRequestSantander(idStation, lastMeasure, tenHoursAgoMeasure, 0, 0, variationStation, weekday, hour, month, socketId, predictionId, nombreCiudad)
         
@@ -89,7 +84,7 @@ class PredictionJobSantander(eventStream: ReceiverInputDStream[NgsiEventLD]){
 
                 val predictions = modelSantander
                 .transform(df)
-                .select("socketId","predictionId", "prediction", "id_estacion", "dia", "hora", "num_mes")
+                .select("socketId","predictionId", "prediction", "id_estacion", "dia", "hora", "num_mes", "ciudad")
 
                 predictions.toJavaRDD
         
@@ -102,7 +97,8 @@ class PredictionJobSantander(eventStream: ReceiverInputDStream[NgsiEventLD]){
                 pred.get(4).toString.toInt,
                 pred.get(5).toString.toInt,
                 pred.get(6).toString.toInt,
-                "null" 
+                "null",
+                pred.get(7).toString
             )
             )
 

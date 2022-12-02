@@ -19,9 +19,10 @@ import com.mongodb.client.model.Sorts
 import prediction.PredictionJobSantander
 import prediction.PredictionJobBarcelona
 import prediction.PredictionJobMalaga
+import prediction.GetCiudad
 import org.apache.spark.streaming.dstream.DStream
 
-case class PredictionResponse(socketId: String, predictionId: String, predictionValue: Int, idStation: Int, weekday: Int, hour: Int, month: Int, name: String) {
+case class PredictionResponse(socketId: String, predictionId: String, predictionValue: Int, idStation: Int, weekday: Int, hour: Int, month: Int, name: String, ciudad: String) {
     override def toString :String = s"""{
     "socketId": { "value": "${socketId}", "type": "Property"},
     "predictionId": { "value":"${predictionId}", "type": "Property"},
@@ -29,13 +30,14 @@ case class PredictionResponse(socketId: String, predictionId: String, prediction
     "idStation": { "value":"${idStation}", "type": "Property"},
     "weekday": { "value":${weekday}, "type": "Property"},
     "hour": { "value": ${hour}, "type": "Property"},
-    "month": { "value": ${month}, "type": "Property"}
+    "month": { "value": ${month}, "type": "Property"},
+    "name": { "value": ${name}, "type": "Property"},
+    "ciudad": { "value": ${ciudad}, "type": "Property"}
     }""".trim()
     }
 
 object PredictionJob {
 
-  var nombreCiudad = "Santander"
   final val URL_CB = "http://orion:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ResBikePrediction1/attrs"
   final val CONTENT_TYPE = ContentType.JSON
   final val METHOD = HTTPMethod.PATCH
@@ -60,13 +62,19 @@ object PredictionJob {
     val eventStream = ssc.receiverStream(new NGSILDReceiver(9002))
     
     // Process event stream to get updated entities
-    val preprocessedDataStream = eventStream
-      .flatMap(event => event.entities)
-      .map(ent => {
-        println(s"ENTITY RECEIVED: $ent")
-        nombreCiudad = ent.attrs("ciudad")("value").toString
-      })
+    // var nombreCiudad: String = ""
+    // val processedDataStream: DStream[String] = eventStream
+    //   .flatMap(event => event.entities)
+    //   .map(ent => {
+    //     println(s"ENTITY RECEIVED: $ent")
+    //     nombreCiudad = ent.attrs("ciudad")("value").toString
+    //   })
+
+    val event4 = new GetCiudad(eventStream)
+    var nombreCiudad = event4.getCity()
     
+    println(s"nombreCiudad es: $nombreCiudad")
+
     val event1 = new PredictionJobBarcelona(eventStream)
     val event2 = new PredictionJobSantander(eventStream)
     val event3 = new PredictionJobMalaga(eventStream)
@@ -74,15 +82,22 @@ object PredictionJob {
 
     if (nombreCiudad == "Barcelona"){
         predictionDataStream = event1.predict(MONGO_USERNAME, MONGO_PASSWORD, spark)
+        println("Barcelona")
     } 
     
     if (nombreCiudad == "Santander"){
         predictionDataStream = event2.predict(MONGO_USERNAME, MONGO_PASSWORD, spark)
+        println("Santander")
+    } 
+    else {
+      predictionDataStream = event3.predict(spark)
+      println("Malaga")
     }
 
-    if (nombreCiudad == "Malaga") {
-        predictionDataStream = event3.predict(spark)
-    }
+    // if (nombreCiudad == "Malaga") {
+    //     predictionDataStream = event3.predict(spark)
+    //     println("Malaga")
+    // }
 
     // Convert the output to an OrionSinkObject and send to Context Broker
     val sinkDataStream = predictionDataStream
