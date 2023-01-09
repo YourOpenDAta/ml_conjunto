@@ -58,10 +58,6 @@ curl orion:1026/ngsi-ld/v1/entities -s -S -H 'Content-Type: application/ld+json'
     "value": 0,
     "type": "Property"
   },
-  "name": {
-    "value": 0,
-    "type": "Property"
-  },
   "weekday":{
     "value": 0,
     "type": "Property"
@@ -83,4 +79,3 @@ curl orion:1026/ngsi-ld/v1/entities -s -S -H 'Content-Type: application/ld+json'
   ]
 }
 EOF
-
