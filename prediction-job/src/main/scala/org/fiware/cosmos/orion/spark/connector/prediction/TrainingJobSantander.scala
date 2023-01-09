@@ -46,7 +46,8 @@ object TrainingJobSantander {
     val vectorAssembler  = new VectorAssembler()
       .setInputCols(Array("id_estacion", "Ultima_medicion", "Diezhora_anterior","dia","num_mes","hora","variacion_estaciones"))
       .setOutputCol("features")
-
+    
+    val vectorAssembler2 = vectorAssembler.setHandleInvalid("skip")
 
 
     val rfc = new DecisionTreeRegressor()
@@ -54,7 +55,7 @@ object TrainingJobSantander {
       .setLabelCol("bicicletas_disponibles")
       .setFeaturesCol("features")
 
-    val pipeline = new Pipeline().setStages(Array(vectorAssembler,rfc))
+    val pipeline = new Pipeline().setStages(Array(vectorAssembler2,rfc))
     val Array(trainingData,testData) = data.randomSplit(Array(0.8,0.2))
     val model = pipeline.fit(trainingData)
     val predictions = model.transform(testData)

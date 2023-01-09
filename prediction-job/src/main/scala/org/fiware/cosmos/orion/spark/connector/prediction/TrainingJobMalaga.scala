@@ -59,7 +59,7 @@ object TrainingJobMalaga {
     val vectorAssembler  = new VectorAssembler()
       .setInputCols(Array("name-ohe","weekday-ohe","hour","month"))
       .setOutputCol("features")
-
+    
     // Automatically identify categorical features, and index them.
     // var transformedDf = vectorAssembler.transform(data)
 

@@ -47,14 +47,14 @@ object TrainingJobBarcelona {
       .setInputCols(Array("id_estacion", "Ultima_medicion", "Seishora_anterior","Nuevehora_anterior","dia","hora","variacion_estaciones"))
       .setOutputCol("features")
 
-
+    val vectorAssembler2 = vectorAssembler.setHandleInvalid("skip")
 
     val rfc = new DecisionTreeRegressor()
       .setMaxDepth(8)
       .setLabelCol("bicicletas_disponibles")
       .setFeaturesCol("features")
 
-    val pipeline = new Pipeline().setStages(Array(vectorAssembler,rfc))
+    val pipeline = new Pipeline().setStages(Array(vectorAssembler2,rfc))
     val Array(trainingData,testData) = data.randomSplit(Array(0.8,0.2))
     val model = pipeline.fit(trainingData)
     val predictions = model.transform(testData)
