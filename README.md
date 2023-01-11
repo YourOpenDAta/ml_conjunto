@@ -113,12 +113,13 @@ curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:n
 ```
 Being:
 
-idStation: station id. (In Malaga each number represents one station name, assigned by their position in the following array: ["Salitre", "Cervantes","El_Palo","Av._de_Andalucia","Camas","Cruz_De_Humilladero","Alcazaba","San_Juan_De_La_Cruz","Pz._de_la_Marina" or "Tejon_y_Rodriguez"])
-month: [1, 2, 3, ..., 12]
-weekday: [1, ..., 7] 1 ->Sunday 7->Saturday
-time: : [0, ... , 23]
-predictionId: String to identify the prediction in the consuming application
-socketId: String to identify the socket with the client in the consuming application
+* idStation: station id. 
+(In Malaga each number represents one station name, assigned by their position in the following array: ["Salitre", "Cervantes","El_Palo","Av._de_Andalucia","Camas","Cruz_De_Humilladero","Alcazaba","San_Juan_De_La_Cruz","Pz._de_la_Marina" or "Tejon_y_Rodriguez"])
+* month: [1, 2, 3, ..., 12]
+* weekday: [1, ..., 7] 1 ->Sunday 7->Saturday
+* time: : [0, ... , 23]
+* predictionId: String to identify the prediction in the consuming application
+* socketId: String to identify the socket with the client in the consuming application
 
 
 3) See if the `ResBikePrediction1` changes
