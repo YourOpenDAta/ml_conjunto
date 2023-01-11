@@ -1,4 +1,4 @@
-# YODA - ML bike Barcelona y Santander integrados
+# YODA - ML bike Barcelona y Santander integrados junto con Malaga Parking
 
 Barcelona: https://api.bsmsa.eu/ext/api/bsm/gbfs/v2/en/station_status
 Santander: http://datos.santander.es/resource/?ds=estado-estaciones-bicicletas&id=c798a2d2-bb27-452e-9a97-25d97b5c21ac&ft=JSON http://datos.santander.es/api/rest/datasets/tusbic_puestos_libres.json?items=17
@@ -53,7 +53,11 @@ docker compose -f docker-compose.dev.yml up -d
 
   - Enter in the orion container
   
-  - Create the predictionEntities and the subscriptions like in the `entities` folder
+  ```shell
+  docker exec -it orion /bin/bash
+  ```
+  
+  - Create the predictionEntities and the subscriptions like in the `entities` folder (createPredictionEntities.sh and subscribeReqPrediction.sh).
 
 ### Test the solution
 
@@ -72,12 +76,13 @@ curl --location --request GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngs
 
 2) Update the `ReqBikePrediction1`
 ```
+
 curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ReqBikePrediction1/attrs' \
 --header 'Content-Type: application/json' \
 --data-raw '{
    "idStation": {
       "type":"Property",
-      "value": [VALUE from 1 to 17 in Santander or from 1 to 505 in Barcelona]
+      "value": [VALUE from 1 to 17 in Santander or from 1 to 505 in Barcelona or from 0 to 9 in Malaga] as a String
    },
    "weekday":{
       "type":"Property",
@@ -93,7 +98,7 @@ curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:n
    },
    "ciudad":{
        "type": "Property",
-       "value": ["Santander" or "Barcelona"]
+       "value": ["Santander" or "Barcelona" or "Malaga"]
    },
    "predictionId":{
       "type":"Property",
@@ -106,6 +111,15 @@ curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:n
 }'
 
 ```
+Being:
+
+idStation: station id. (In Malaga each number represents one station name, assigned by their position in the following array: ["Salitre", "Cervantes","El_Palo","Av._de_Andalucia","Camas","Cruz_De_Humilladero","Alcazaba","San_Juan_De_La_Cruz","Pz._de_la_Marina" or "Tejon_y_Rodriguez"])
+month: [1, 2, 3, ..., 12]
+weekday: [1, ..., 7] 1 ->Sunday 7->Saturday
+time: : [0, ... , 23]
+predictionId: String to identify the prediction in the consuming application
+socketId: String to identify the socket with the client in the consuming application
+
 
 3) See if the `ResBikePrediction1` changes
 
