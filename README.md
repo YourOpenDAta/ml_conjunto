@@ -71,13 +71,15 @@ curl --location --request GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngs
 ```
 
 2) Update the `ReqBikePrediction1`
+
 ```
+
 curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ReqBikePrediction1/attrs' \
 --header 'Content-Type: application/json' \
 --data-raw '{
    "idStation": {
       "type":"Property",
-      "value": [VALUE from 1 to 17 in Santander or from 1 to 505 in Barcelona]
+      "value": [VALUE from 1 to 17 in Santander or from 1 to 505 in Barcelona or from 0 to 9 in Malaga] as a String
    },
    "weekday":{
       "type":"Property",
@@ -93,7 +95,7 @@ curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:n
    },
    "ciudad":{
        "type": "Property",
-       "value": ["Santander" or "Barcelona"]
+       "value": ["Santander" or "Barcelona" or "Malaga"]
    },
    "predictionId":{
       "type":"Property",
@@ -104,8 +106,15 @@ curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:n
       "value":"Fn0kKHEF-dOcr311AAAF"
    }
 }'
-
 ```
+
+Being:
+- idStation: station id. In Malaga each number represents one station name, assigned by their position in the following array: ["Salitre", "Cervantes","El_Palo","Av._de_Andalucia","Camas","Cruz_De_Humilladero","Alcazaba","San_Juan_De_La_Cruz","Pz._de_la_Marina" or "Tejon_y_Rodriguez"]
+- month: [1, 2, 3, ..., 12]
+- weekday: [1, ..., 7] 1 ->Sunday  7->Saturday
+- time: : [0, ... , 23]
+- predictionId: String to identify the prediction in the consuming application
+- socketId: String to identify the socket with the client in the consuming application
 
 3) See if the `ResBikePrediction1` changes
 
@@ -148,7 +157,6 @@ Response:
       "value": [VALUE set at the request]
    }
 ```
-
 
 ## Production (YODA) - Not yet implemented
 
