@@ -1,5 +1,5 @@
 #! /bin/bash -eu
 FILE=./prediction-job/target/orion.spark.connector.prediction.conjunto.bike-1.0.1.jar
 /spark/bin/spark-submit --driver-memory 4g --class  org.fiware.cosmos.orion.spark.connector.prediction.TrainingJobSantander --master  spark://spark-master:7077 --deploy-mode client $FILE --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
-/spark/bin/spark-submit --driver-memory 4g --class  org.fiware.cosmos.orion.spark.connector.prediction.TrainingJobMalaga --master  spark://spark-master:7077 --deploy-mode client $FILE --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
 /spark/bin/spark-submit --driver-memory 4g --class  org.fiware.cosmos.orion.spark.connector.prediction.TrainingJobBarcelona --master  spark://spark-master:7077 --deploy-mode client $FILE --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
+/spark/bin/spark-submit --driver-memory 4g --class  org.fiware.cosmos.orion.spark.connector.prediction.TrainingJobMalaga --master  spark://spark-master:7077 --deploy-mode client $FILE --conf "spark.driver.extraJavaOptions=-Dlog4jspark.root.logger=WARN,console"
