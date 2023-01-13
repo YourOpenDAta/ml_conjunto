@@ -3,7 +3,7 @@ curl -v  localhost:1026/ngsi-ld/v1/subscriptions/ -s -S -H 'Content-Type: applic
   "description": "A subscription to get request predictions for bikes in Santander and Barcelona",
   "type": "Subscription",
   "entities": [{
-    "id": "urn:ngsi-ld:ReqBikePrediction1",
+    "id": "urn:ngsi-ld:ReqPrediction1",
     "type": "ReqBikePrediction"
     }],
   "watchedAttributes": [

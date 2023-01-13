@@ -1,4 +1,4 @@
-curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ReqBikePrediction1/attrs' \
+curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ReqPrediction1/attrs' \
 --header 'Content-Type: application/json' \
 --data-raw '{
    "idStation": {
@@ -31,7 +31,7 @@ curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:n
    }
 }'
 
-curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ReqBikePrediction1/attrs' \
+curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ReqPrediction1/attrs' \
 --header 'Content-Type: application/json' \
 --data-raw '{
    "idStation": {
@@ -53,6 +53,40 @@ curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:n
    "ciudad":{
        "type": "Property",
        "value": "Malaga"
+   },
+   "predictionId":{
+      "type":"Property",
+      "value":"p-1662768034900"
+   },
+   "socketId":{
+      "type":"Property",
+      "value":"Fn0kKHEF-dOcr311AAAF"
+   }
+}'
+
+
+curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ReqPrediction1/attrs' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+   "idStation": {
+      "type":"Property",
+      "value": "3"
+   },
+   "weekday":{
+      "type":"Property",
+      "value": 6
+   },
+   "hour":{
+      "type":"Property",
+      "value": 22
+   },
+   "month":{
+       "type": "Property",
+       "value": 1
+   },
+   "ciudad":{
+       "type": "Property",
+       "value": "Santander"
    },
    "predictionId":{
       "type":"Property",

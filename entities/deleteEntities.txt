@@ -1,3 +1,3 @@
-curl --location --request DELETE 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ResBikePrediction1'
-curl --location --request DELETE 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ReqBikePrediction1'
+curl --location --request DELETE 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ResPrediction1'
+curl --location --request DELETE 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ReqPrediction1'
 curl --location --request DELETE 'http://localhost:1026/ngsi-ld/v1/subscriptions/{id}'

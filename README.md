@@ -2,6 +2,13 @@
 
 Barcelona: https://api.bsmsa.eu/ext/api/bsm/gbfs/v2/en/station_status
 Santander: http://datos.santander.es/resource/?ds=estado-estaciones-bicicletas&id=c798a2d2-bb27-452e-9a97-25d97b5c21ac&ft=JSON http://datos.santander.es/api/rest/datasets/tusbic_puestos_libres.json?items=17
+Malaga: https://datosabiertos.malaga.eu/dataset/ocupacion-aparcamientos-publicos-municipales https://datosabiertos.malaga.eu/dataset/ubicacion-de-aparcamientos-publicos-municipales
+
+## Description
+
+Barcelona's endpoint returns XXXX
+Santander's endpoint returns XXXXX
+Malaga's endpoint returns XXXXX
 
 ## Initial tasks
 
@@ -67,17 +74,17 @@ curl --location --request GET 'http://localhost:1026/ngsi-ld/v1/subscriptions/'
 ```
 
 ```
-curl --location --request GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ReqBikePrediction1'
+curl --location --request GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ReqPrediction1'
 ```
 
 ```
-curl --location --request GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ResBikePrediction1'
+curl --location --request GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ResPrediction1'
 ```
 
-2) Update the `ReqBikePrediction1`
+2) Update the `ReqPrediction1`
 ```
 
-curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ReqBikePrediction1/attrs' \
+curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ReqPrediction1/attrs' \
 --header 'Content-Type: application/json' \
 --data-raw '{
    "idStation": {
@@ -122,10 +129,10 @@ Being:
 * socketId: String to identify the socket with the client in the consuming application
 
 
-3) See if the `ResBikePrediction1` changes
+3) See if the `ResPrediction1` changes
 
 ```
-curl --location --request GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ResBarcelonaBikePrediction1'
+curl --location --request GET 'http://localhost:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ResPrediction1'
 ```
 
 Response:
@@ -133,7 +140,7 @@ Response:
 {
    "@context":"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
    "id":"urn:ngsi-ld:BarcelonaBikePrediction1",
-   "type":"ResSantanderBikePrediction",
+   "type":"ResPrediction",
    "socketId":{
       "type":"Property",
       "value":"Fn0kKHEF-dOcr311AAAF"
@@ -168,8 +175,8 @@ Response:
 ## Production (YODA) - Not yet implemented
 
 * Run the whole scenario in prod within YODA (only spark). You need to create the predictionEntities and the subscriptions like in the `entities` folder. They are required the creation of entities and the subscription of spark. In the consuming application there are two possibilities:
-   - The application receives a notification when the prediction is made and receives the `urn:ngsi-ld:ResSantanderBikePrediction1`
-   - The application asks periodically to orion (`urn:ngsi-ld:ResSantanderBikePrediction1`) and see if the prediction was made
+   - The application receives a notification when the prediction is made
+   - The application asks periodically to orion (`urn:ngsi-ld:ResPrediction1`) and see if the prediction was made
 
 ```shell
 docker compose up -d
@@ -178,7 +185,7 @@ docker compose up -d
 * Example of petition made to ask for a prediction:
 
 ```
-curl --location --request PATCH 'http://broker-yoda.dit.upm.es/ngsi-ld/v1/entities/urn:ngsi-ld:ReqSantanderBikePrediction1/attrs' \
+curl --location --request PATCH 'http://138.4.22.130/ngsi-ld/v1/entities/urn:ngsi-ld:ReqPrediction1/attrs' \
 --header 'Content-Type: application/json' \
 --data-raw '{
    "month":{
@@ -220,89 +227,32 @@ Being:
 
 1) Validate that the subscription and entities exist:
 ```
-curl --location --request GET 'http://broker-yoda.dit.upm.es/ngsi-ld/v1/subscriptions/'
+curl --location --request GET 'http://138.4.22.130/ngsi-ld/v1/subscriptions/'
 ```
 
 ```
-curl --location --request GET 'http://broker-yoda.dit.upm.es/ngsi-ld/v1/entities/urn:ngsi-ld:ReqSantanderBikePrediction1'
+curl --location --request GET 'http://138.4.22.130/ngsi-ld/v1/entities/urn:ngsi-ld:ReqPrediction1'
 ```
 
 ```
-curl --location --request GET 'http://broker-yoda.dit.upm.es/ngsi-ld/v1/entities/urn:ngsi-ld:ResSantanderBikePrediction1'
+curl --location --request GET 'http://138.4.22.130/ngsi-ld/v1/entities/urn:ngsi-ld:ResPrediction1'
 ```
 
-2) Update the `ReqSantanderBikePrediction1`
+2) Update the `ReqPrediction1` to the direction
 ```
-curl --location --request PATCH 'http://broker-yoda.dit.upm.es/ngsi-ld/v1/entities/urn:ngsi-ld:ReqSantanderBikePrediction1/attrs' \
+curl --location --request PATCH 'http://138.4.22.130/ngsi-ld/v1/entities/urn:ngsi-ld:ReqPrediction1/attrs' \
 --header 'Content-Type: application/json' \
---data-raw '{
-   "month":{
-      "type":"Property",
-      "value":9
-   },
-   "idStation": {
-      "type":"Property",
-      "value":11
-   },
-   "weekday":{
-      "type":"Property",
-      "value":2
-   },
-   "hour":{
-      "type":"Property",
-      "value":23
-   },
-   "predictionId":{
-      "type":"Property",
-      "value":"p-1662768034900"
-   },
-   "socketId":{
-      "type":"Property",
-      "value":"Fn0kKHEF-dOcr311AAAF"
-   }
-}'
+--data-raw '{...}'
 ```
 
-3) See if the `ResSantanderBikePrediction1` changes
+3) See if the `ResPrediction1` changes
 
 ```
-curl --location --request GET 'http://broker-yoda.dit.upm.es/ngsi-ld/v1/entities/urn:ngsi-ld:ResSantanderBikePrediction1'
+curl --location --request GET 'http://138.4.22.130/ngsi-ld/v1/entities/urn:ngsi-ld:ResPrediction1'
 ```
 
 Response:
 ```
 {
-   "@context":"https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
-   "id":"urn:ngsi-ld:ResSantanderBikePrediction1",
-   "type":"ResSantanderBikePrediction",
-   "socketId":{
-      "type":"Property",
-      "value":"Fn0kKHEF-dOcr311AAAF"
-   },
-   "predictionId":{
-      "type":"Property",
-      "value":"p-1662768034900"
-   },
-   "predictionValue":{
-      "type":"Property",
-      "value":15
-   },
-   "idStation":{
-      "type":"Property",
-      "value":"11"
-   },
-   "weekday":{
-      "type":"Property",
-      "value":2
-   },
-   "hour":{
-      "type":"Property",
-      "value":22
-   },
-   "month":{
-      "type":"Property",
-      "value":9
-   }
+   ...
 ```
-Result of prediction: 15 bikes available
-- predictionValue: number of bikes available
