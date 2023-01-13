@@ -12,6 +12,7 @@ services:
       - "constraint:node==spark-master"
     networks:
          - ckan_yoda
+    restart: unless-stopped 
     command: bash -c "sleep 20 && sh /prediction-job/spark-jobs/run-spark-jobs-predict.sh"
     volumes:
       - ./prediction-job:/prediction-job
