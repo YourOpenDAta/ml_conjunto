@@ -1,4 +1,4 @@
-curl -v  orion:1026/ngsi-ld/v1/subscriptions/ -s -S -H 'Content-Type: application/ld+json' -d @- <<EOF
+curl -v  localhost:1026/ngsi-ld/v1/subscriptions/ -s -S -H 'Content-Type: application/ld+json' -d @- <<EOF
 {
   "description": "A subscription to get request predictions for bikes in Santander and Barcelona",
   "type": "Subscription",

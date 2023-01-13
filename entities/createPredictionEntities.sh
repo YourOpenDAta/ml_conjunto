@@ -1,4 +1,4 @@
-curl orion:1026/ngsi-ld/v1/entities -s -S -H 'Content-Type: application/ld+json' -d @- <<EOF
+curl localhost:1026/ngsi-ld/v1/entities -s -S -H 'Content-Type: application/ld+json' -d @- <<EOF
 {
     "id": "urn:ngsi-ld:ReqBikePrediction1",
     "type": "ReqBikePrediction",
@@ -38,7 +38,7 @@ EOF
 
 
 
-curl orion:1026/ngsi-ld/v1/entities -s -S -H 'Content-Type: application/ld+json' -d @- <<EOF
+curl localhost:1026/ngsi-ld/v1/entities -s -S -H 'Content-Type: application/ld+json' -d @- <<EOF
 {
   "id": "urn:ngsi-ld:ResBikePrediction1",
   "type": "ResBikePrediction",
