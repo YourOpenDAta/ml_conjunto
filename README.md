@@ -172,7 +172,7 @@ Response:
 ```
 
 
-## Production (YODA) - Not yet implemented
+## Production (YODA)
 
 * Run the whole scenario in prod within YODA (only spark). You need to create the predictionEntities and the subscriptions like in the `entities` folder. They are required the creation of entities and the subscription of spark. In the consuming application there are two possibilities:
    - The application receives a notification when the prediction is made
@@ -187,41 +187,8 @@ docker compose up -d
 ```
 curl --location --request PATCH 'http://138.4.22.130/ngsi-ld/v1/entities/urn:ngsi-ld:ReqPrediction1/attrs' \
 --header 'Content-Type: application/json' \
---data-raw '{
-   "month":{
-      "type":"Property",
-      "value":9
-   },
-   "idStation": {
-      "type":"Property",
-      "value":11
-   },
-   "weekday":{
-      "type":"Property",
-      "value":2
-   },
-   "hour":{
-      "type":"Property",
-      "value":23
-   },
-   "predictionId":{
-      "type":"Property",
-      "value":"p-1662768034900"
-   },
-   "socketId":{
-      "type":"Property",
-      "value":"Fn0kKHEF-dOcr311AAAF"
-   }
-}'
+--data-raw '{...}'
 ```
-
-Being:
-- idStation: station id
-- month: [1, 2, 3, ..., 12]
-- weekday: [1, ..., 7] 1 ->Sunday  7->Saturday
-- time: : [0, ... , 23]
-- predictionId: String to identify the prediction in the consuming application
-- socketId: String to identify the socket with the client in the consuming application
 
 ### Testing everything worked
 
