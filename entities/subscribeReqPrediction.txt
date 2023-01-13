@@ -1,10 +1,10 @@
 curl -v  localhost:1026/ngsi-ld/v1/subscriptions/ -s -S -H 'Content-Type: application/ld+json' -d @- <<EOF
 {
-  "description": "A subscription to get request predictions for bikes in Santander and Barcelona",
+  "description": "A subscription to get request predictions for Santander, Malaga, and Barcelona",
   "type": "Subscription",
   "entities": [{
     "id": "urn:ngsi-ld:ReqPrediction1",
-    "type": "ReqBikePrediction"
+    "type": "ReqPrediction"
     }],
   "watchedAttributes": [
       "predictionId",
