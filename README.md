@@ -6,9 +6,9 @@ Malaga: https://datosabiertos.malaga.eu/dataset/ocupacion-aparcamientos-publicos
 
 ## Description
 
-Barcelona's endpoint returns XXXX
-Santander's endpoint returns XXXXX
-Malaga's endpoint returns XXXXX
+* Barcelona's endpoint returns the number of bikes available in the requested station
+* Santander's endpoint returns the number of bikes available in the requested station
+* Malaga's endpoint returns the percentage of occupancy
 
 ## Initial tasks
 
@@ -93,7 +93,7 @@ curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:n
    },
    "weekday":{
       "type":"Property",
-      "value": [VALUE from 0 to 6]
+      "value": [VALUE from 1 to 7]
    },
    "hour":{
       "type":"Property",
