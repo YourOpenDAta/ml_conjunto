@@ -54,7 +54,7 @@ class PredictionJobMalaga extends Serializable{
         val variationStation: Double =  0.0
 
             
-        return PredictionRequest(idStation, lastMeasure, tenHoursAgoMeasure, sixHoursAgoMeasure, nineHoursAgoMeasure, variationStation, weekday, hour, month, nombreCiudad, predictionId, nombreCiudad)
+        return PredictionRequest(idStation, lastMeasure, tenHoursAgoMeasure, sixHoursAgoMeasure, nineHoursAgoMeasure, variationStation, weekday, hour, month, socketId, predictionId, nombreCiudad)
     }
 
     def transform (rdd: RDD[PredictionRequest], spark: SparkSession): JavaRDD[Row] = {
@@ -82,68 +82,4 @@ class PredictionJobMalaga extends Serializable{
           pred.get(6).toString.toInt
         )
     }
-
-
-//     def predict(spark: SparkSession, nombreCiudad: String): DStream[PredictionResponse] = {
-//     val BASE_PATH = "./prediction-job"
-//     val modelMalaga = PipelineModel.load(BASE_PATH+"/model/malaga")
-
-//         val processedDataStream = eventStream
-//       .flatMap(event => event.entities)
-//       .map(ent => {
-//         println(s"ENTITY RECEIVED: $ent")
-//         //val nombreCiudad = ent.attrs("ciudad")("value").toString
-//         val idStation = ent.attrs("idStation")("value").toString
-//         val hour = ent.attrs("hour")("value").toString.toInt
-//         val weekday = ent.attrs("weekday")("value").toString.toInt
-//         val socketId = ent.attrs("socketId")("value").toString
-//         val predictionId = ent.attrs("predictionId")("value").toString
-//         val month = ent.attrs("month")("value").toString.toInt
-//         //val dateNineHoursBefore = dateTimeFormatter.format(new Date(System.currentTimeMillis() - 3600 * 1000 *9))
-//         //val dateSixHoursBefore = dateTimeFormatter.format(new Date(System.currentTimeMillis() - 3600 * 1000 *6))
-//         //val dateTenHoursBefore = dateTimeFormatter.format(new Date(System.currentTimeMillis() - 3600 * 1000 *10))
-
-//         var lastMeasure: Int = 0
-//         var sixHoursAgoMeasure: Int = 0
-//         var nineHoursAgoMeasure: Int = 0
-//         var tenHoursAgoMeasure: Int = 0
-        
-//         val variationStation: Double =  0.0
- 
-//         PredictionRequest(idStation, lastMeasure, tenHoursAgoMeasure, sixHoursAgoMeasure, nineHoursAgoMeasure, variationStation, weekday, hour, month, nombreCiudad, predictionId, nombreCiudad)
-
-//       })
-
-//     // Feed each entity into the prediction model
-//     val predictionDataStream = processedDataStream
-//       .transform(rdd => {
-//         val df = spark.createDataFrame(rdd)
-
-//         val df2 = df
-//                     .withColumnRenamed("id_estacion", "name")
-//                     .withColumnRenamed("hora", "hour")
-//                     .withColumnRenamed("dia", "weekday")
-//                     .withColumnRenamed("num_mes", "month")
-//                     .select("name", "hour", "weekday", "month", "socketId","predictionId")
-//           //df2.show()
-//         val predictions = modelMalaga
-//           .transform(df2)
-//           .select("socketId","predictionId", "prediction", "name", "weekday", "hour", "month")
-//           predictions.toJavaRDD
-//       })
-//       .map(pred=> 
-//         PredictionResponse(
-//           pred.get(0).toString,
-//           pred.get(1).toString,
-//           pred.get(2).toString.toFloat.round * 10,
-//           pred.get(3).toString,
-//           pred.get(4).toString.toInt,
-//           pred.get(5).toString.toInt,
-//           pred.get(6).toString.toInt
-//         )
-//     )
-
-//     return predictionDataStream
-
-// }
 }
