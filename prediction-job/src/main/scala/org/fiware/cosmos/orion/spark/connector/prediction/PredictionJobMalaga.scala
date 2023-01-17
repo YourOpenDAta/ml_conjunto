@@ -35,7 +35,7 @@ class PredictionJobMalaga extends Serializable{
   val BASE_PATH = "./prediction-job"    
   val modelMalaga = PipelineModel.load(BASE_PATH+"/model/malaga")
   val dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-    
+  var mongoIsNull = false
 
     def request (ent: EntityLD, MONGO_USERNAME: String, MONGO_PASSWORD: String, nombreCiudad: String): PredictionRequest  = {
         dateTimeFormatter.setTimeZone(TimeZone.getTimeZone("UTC"))
@@ -45,6 +45,10 @@ class PredictionJobMalaga extends Serializable{
         val socketId = ent.attrs("socketId")("value").toString
         val predictionId = ent.attrs("predictionId")("value").toString
         val month = ent.attrs("month")("value").toString.toInt
+        if (idStation.toInt > 9 || idStation.toInt < 0 || hour > 23 || hour < 0 || weekday > 7 || weekday < 1 || month > 12 || month < 1){
+          mongoIsNull = true
+          println("Some of the values introduced in the request are incorrect.")
+        }
 
         var lastMeasure: Int = 0
         var sixHoursAgoMeasure: Int = 0
@@ -72,14 +76,26 @@ class PredictionJobMalaga extends Serializable{
     }
 
     def response (pred: Row): PredictionResponse = {
-      return   PredictionResponse(
-          pred.get(0).toString,
-          pred.get(1).toString,
-          pred.get(2).toString.toFloat.round * 10,
-          pred.get(3).toString,
-          pred.get(4).toString.toInt,
-          pred.get(5).toString.toInt,
-          pred.get(6).toString.toInt
-        )
+    if (mongoIsNull) {
+      return PredictionResponse(
+        pred.get(0).toString,
+        pred.get(1).toString,
+        -1,
+        pred.get(3).toString,
+        pred.get(4).toString.toInt,
+        pred.get(5).toString.toInt,
+        pred.get(6).toString.toInt
+      )
+    } else {
+      return PredictionResponse(
+        pred.get(0).toString,
+        pred.get(1).toString,
+        pred.get(2).toString.toFloat.round * 10,
+        pred.get(3).toString,
+        pred.get(4).toString.toInt,
+        pred.get(5).toString.toInt,
+        pred.get(6).toString.toInt
+      )
+    }
     }
 }

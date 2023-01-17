@@ -40,7 +40,7 @@ object TrainingJobSantander {
       .schema(schema)
       .option("header", "true")
       .option("delimiter", ",")
-      .load("./prediction-job/santander_bike.csv")
+      .load("./prediction-job/csv/santander_bike.csv")
 
               
     val vectorAssembler  = new VectorAssembler()

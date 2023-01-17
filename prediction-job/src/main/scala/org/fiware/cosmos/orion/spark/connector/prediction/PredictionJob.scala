@@ -106,8 +106,6 @@ object PredictionJob {
 
     // Add Orion Sink
     OrionSink.addSink(sinkDataStream)
-    //sinkDataStream.print()
-    //predictionDataStream.print()
     ssc.start()
     ssc.awaitTermination()
   

@@ -3,19 +3,19 @@ curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:n
 --data-raw '{
    "idStation": {
       "type":"Property",
-      "value": "8"
+      "value": "1"
    },
    "weekday":{
       "type":"Property",
-      "value": 6
+      "value": 3
    },
    "hour":{
       "type":"Property",
-      "value": 0
+      "value": 21
    },
    "month":{
        "type": "Property",
-       "value": 10
+       "value": 1
    },
    "ciudad":{
        "type": "Property",

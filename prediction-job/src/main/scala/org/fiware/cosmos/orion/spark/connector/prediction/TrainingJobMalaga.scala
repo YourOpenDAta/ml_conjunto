@@ -45,7 +45,7 @@ object TrainingJobMalaga {
       .schema(schema)
       .option("header", "true")
       .option("delimiter", ",")
-      .load("./prediction-job/malaga_parking.csv")
+      .load("./prediction-job/csv/malaga_parking.csv")
 
     // onehotencoder
     val it = Array("name", "weekday")
@@ -59,11 +59,6 @@ object TrainingJobMalaga {
     val vectorAssembler  = new VectorAssembler()
       .setInputCols(Array("name-ohe","weekday-ohe","hour","month"))
       .setOutputCol("features")
-    
-    // Automatically identify categorical features, and index them.
-    // var transformedDf = vectorAssembler.transform(data)
-
-    //val Array(trainingData, testData) = transformedDf.randomSplit(Array(0.8, 0.2))
 
 
     val rfc = new RandomForestClassifier()
@@ -78,15 +73,6 @@ object TrainingJobMalaga {
     val predictions = model.transform(testData)
 
     predictions.select("prediction","occupation", "hour", "weekday", "name","month").show(10)
-
-    // val evaluator = new MulticlassClassificationEvaluator()
-    //   .setLabelCol("occupation")
-    //   .setPredictionCol("prediction")
-    //   .setMetricName("accuracy")
-    // val accuracy = evaluator.evaluate(predictions)
-    // println(s"Accuracy = ${accuracy}")
-
-    //println(s"Learned classification forest model:\n ${rfModel.toDebugString}")
 
     //return the model with the pipeline
     model

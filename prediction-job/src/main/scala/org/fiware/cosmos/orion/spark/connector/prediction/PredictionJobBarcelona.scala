@@ -39,7 +39,7 @@ class PredictionJobBarcelona extends Serializable{
       return lines
     }
 
-    val variationStationsBarcelona = readFile("./prediction-job/array-load.txt")
+    val variationStationsBarcelona = readFile("./prediction-job/csv/array-load-bcn.txt")
     val BASE_PATH = "./prediction-job"
     val dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
     val modelBarcelona = PipelineModel.load(BASE_PATH+"/model/barcelona") 
@@ -53,6 +53,10 @@ class PredictionJobBarcelona extends Serializable{
         val socketId = ent.attrs("socketId")("value").toString
         val predictionId = ent.attrs("predictionId")("value").toString
         val month = ent.attrs("month")("value").toString.toInt
+        if (idStation.toInt > 519 || idStation.toInt < 1 || hour > 23 || hour < 0 || weekday > 7 || weekday < 1 || month > 12 || month < 1){
+          mongoIsNull = true
+          println("Some of the values introduced in the request are incorrect.")
+        }
         val dateNineHoursBefore = dateTimeFormatter.format(new Date(System.currentTimeMillis() - 3600 * 1000 *9))
         val dateSixHoursBefore = dateTimeFormatter.format(new Date(System.currentTimeMillis() - 3600 * 1000 *6))
 
