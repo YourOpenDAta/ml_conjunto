@@ -1,8 +1,8 @@
 # YODA - ML bike Barcelona y Santander integrados junto con Malaga Parking
 
-Barcelona: https://api.bsmsa.eu/ext/api/bsm/gbfs/v2/en/station_status
-Santander: http://datos.santander.es/resource/?ds=estado-estaciones-bicicletas&id=c798a2d2-bb27-452e-9a97-25d97b5c21ac&ft=JSON http://datos.santander.es/api/rest/datasets/tusbic_puestos_libres.json?items=17
-Malaga: https://datosabiertos.malaga.eu/dataset/ocupacion-aparcamientos-publicos-municipales https://datosabiertos.malaga.eu/dataset/ubicacion-de-aparcamientos-publicos-municipales
+* Barcelona: https://api.bsmsa.eu/ext/api/bsm/gbfs/v2/en/station_status
+* Santander: http://datos.santander.es/resource/?ds=estado-estaciones-bicicletas&id=c798a2d2-bb27-452e-9a97-25d97b5c21ac&ft=JSON http://datos.santander.es/api/rest/datasets/tusbic_puestos_libres.json?items=17
+* Malaga: https://datosabiertos.malaga.eu/dataset/ocupacion-aparcamientos-publicos-municipales https://datosabiertos.malaga.eu/dataset/ubicacion-de-aparcamientos-publicos-municipales
 
 ## Description
 
