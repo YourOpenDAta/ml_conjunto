@@ -64,11 +64,18 @@ class PredictionJobBarcelona extends Serializable{
         var sixHoursAgoMeasure: Int = 6
         var nineHoursAgoMeasure: Int = 7
         var tenHoursAgoMeasure: Int = 8
+        var variationStation: Double = 0
         
         val num = (idStation.toInt - 1 )
         val idVariationStation = num * 24 + hour
-        val variationStation: Double = variationStationsBarcelona(idVariationStation).toString.toDouble
-        
+        try{
+        variationStation = variationStationsBarcelona(idVariationStation).toString.toDouble
+        } catch {
+          case a: java.lang.IndexOutOfBoundsException => {
+            println("IndexOutOfBoundsException: idStation value is not correct")
+          }
+        }
+
         val mongoUri = s"mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo:27017/bikes_barcelona.historical?authSource=admin"
         val mongoClient = MongoClients.create(mongoUri);
         val collection = mongoClient.getDatabase("bikes_barcelona").getCollection("historical")

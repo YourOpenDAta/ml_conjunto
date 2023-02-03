@@ -3,23 +3,23 @@ curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:n
 --data-raw '{
    "idStation": {
       "type":"Property",
-      "value": "1"
+      "value": "500"
    },
    "weekday":{
       "type":"Property",
-      "value": 3
+      "value": 5
    },
    "hour":{
       "type":"Property",
-      "value": 21
+      "value": 14
    },
    "month":{
        "type": "Property",
-       "value": 1
+       "value": 2
    },
    "ciudad":{
        "type": "Property",
-       "value": "Malaga"
+       "value": "Barcelona"
    },
    "predictionId":{
       "type":"Property",
