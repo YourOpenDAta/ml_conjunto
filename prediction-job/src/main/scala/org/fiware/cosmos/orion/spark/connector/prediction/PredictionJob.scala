@@ -20,7 +20,7 @@ import prediction.PredictionJobBarcelona
 import prediction.PredictionJobMalaga
 import org.apache.spark.streaming.dstream.DStream
 
-case class PredictionResponse(socketId: String, predictionId: String, predictionValue: Int, idStation: String, weekday: Int, hour: Int, month: Int) {
+case class PredictionResponse(socketId: String, predictionId: String, predictionValue: Int, idStation: String, weekday: Int, hour: Int, month: Int, city: String) {
   override def toString :String = s"""{
   "socketId": { "value": "${socketId}", "type": "Property"},
   "predictionId": { "value":"${predictionId}", "type": "Property"},
@@ -28,15 +28,16 @@ case class PredictionResponse(socketId: String, predictionId: String, prediction
   "idStation": { "value":"${idStation}", "type": "Property"},
   "weekday": { "value":${weekday}, "type": "Property"},
   "hour": { "value": ${hour}, "type": "Property"},
-  "month": { "value": ${month}, "type": "Property"}
+  "month": { "value": ${month}, "type": "Property"},
+  "city": { "value": "${city}", "type": "Property"}
   }""".trim()
 }
 
-case class PredictionRequest(id_estacion: String, Ultima_medicion: Int, Diezhora_anterior: Int, Seishora_anterior: Int, Nuevehora_anterior: Int, variacion_estaciones: Double, dia: Int, hora: Int, num_mes: Int, socketId: String, predictionId: String, ciudad: String)
+case class PredictionRequest(id_estacion: String, Ultima_medicion: Int, Diezhora_anterior: Int, Seishora_anterior: Int, Nuevehora_anterior: Int, variacion_estaciones: Double, dia: Int, hora: Int, num_mes: Int, socketId: String, predictionId: String, city: String)
 
 object PredictionJob {
 
-  var nombreCiudad = "Santander"
+  var cityName = "Santander"
   final val URL_CB = "http://orion:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ResPrediction1/attrs"
   final val CONTENT_TYPE = ContentType.JSON
   final val METHOD = HTTPMethod.PATCH
@@ -60,7 +61,7 @@ object PredictionJob {
 
     val eventStream = ssc.receiverStream(new NGSILDReceiver(9002))
 
-    var nombreCiudad: String = ""
+    var cityName: String = ""
     var pred1 = new PredictionJobBarcelona()
     var pred2 = new PredictionJobSantander()
     var pred3 = new PredictionJobMalaga()
@@ -68,13 +69,13 @@ object PredictionJob {
       .flatMap(event => event.entities)
       .map(ent => {
           println(s"ENTITY RECEIVED: $ent")
-          nombreCiudad = ent.attrs("ciudad")("value").toString
-          if (nombreCiudad == "Barcelona") {
-             pred1.request(ent, MONGO_USERNAME, MONGO_PASSWORD, nombreCiudad)
-           } else if (nombreCiudad == "Malaga"){
-             pred3.request(ent, MONGO_USERNAME, MONGO_PASSWORD, nombreCiudad)
+          cityName = ent.attrs("city")("value").toString
+          if (cityName == "Barcelona") {
+             pred1.request(ent, MONGO_USERNAME, MONGO_PASSWORD, cityName)
+           } else if (cityName == "Malaga"){
+             pred3.request(ent, MONGO_USERNAME, MONGO_PASSWORD, cityName)
            } else {
-             pred2.request(ent, MONGO_USERNAME, MONGO_PASSWORD, nombreCiudad)
+             pred2.request(ent, MONGO_USERNAME, MONGO_PASSWORD, cityName)
            }
           
         })
@@ -82,18 +83,18 @@ object PredictionJob {
     // Feed each entity into the prediction model
     val predictionDataStream = processedDataStream
       .transform(rdd => {
-           if (nombreCiudad == "Barcelona") {
+           if (cityName == "Barcelona") {
              pred1.transform(rdd, spark)
-           } else if (nombreCiudad == "Malaga"){
+           } else if (cityName == "Malaga"){
              pred3.transform(rdd, spark)
            } else {
              pred2.transform(rdd, spark)
            }
       })
       .map(pred=> {
-           if (nombreCiudad == "Barcelona") {
+           if (cityName == "Barcelona") {
              pred1.response(pred)
-           } else if (nombreCiudad == "Malaga"){
+           } else if (cityName == "Malaga"){
              pred3.response(pred)
            } else {
              pred2.response(pred)

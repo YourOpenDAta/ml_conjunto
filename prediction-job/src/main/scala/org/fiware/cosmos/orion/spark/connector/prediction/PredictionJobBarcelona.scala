@@ -45,7 +45,7 @@ class PredictionJobBarcelona extends Serializable{
     val modelBarcelona = PipelineModel.load(BASE_PATH+"/model/barcelona") 
     var mongoIsNull = false
 
-    def request (ent: EntityLD, MONGO_USERNAME: String, MONGO_PASSWORD: String, nombreCiudad: String): PredictionRequest  = {
+    def request (ent: EntityLD, MONGO_USERNAME: String, MONGO_PASSWORD: String, cityName: String): PredictionRequest  = {
         dateTimeFormatter.setTimeZone(TimeZone.getTimeZone("UTC"))
         val idStation = ent.attrs("idStation")("value").toString
         val hour = ent.attrs("hour")("value").toString.toInt
@@ -97,7 +97,7 @@ class PredictionJobBarcelona extends Serializable{
           }
         }
         
-         return PredictionRequest(idStation, lastMeasure, tenHoursAgoMeasure, sixHoursAgoMeasure, nineHoursAgoMeasure, variationStation, weekday, hour, month, socketId, predictionId, nombreCiudad)
+         return PredictionRequest(idStation, lastMeasure, tenHoursAgoMeasure, sixHoursAgoMeasure, nineHoursAgoMeasure, variationStation, weekday, hour, month, socketId, predictionId, cityName)
          
     }
 
@@ -119,7 +119,8 @@ class PredictionJobBarcelona extends Serializable{
           pred.get(3).toString,
           pred.get(4).toString.toInt,
           pred.get(5).toString.toInt,
-          pred.get(6).toString.toInt
+          pred.get(6).toString.toInt,
+          "Barcelona"
         )
       } else {
         return PredictionResponse(
@@ -129,7 +130,8 @@ class PredictionJobBarcelona extends Serializable{
           pred.get(3).toString,
           pred.get(4).toString.toInt,
           pred.get(5).toString.toInt,
-          pred.get(6).toString.toInt
+          pred.get(6).toString.toInt,
+          "Barcelona"
         )
       }
     } 

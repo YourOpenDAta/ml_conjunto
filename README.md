@@ -103,7 +103,7 @@ curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:n
        "type": "Property",
        "value": [VALUE from 1 to 12]
    },
-   "ciudad":{
+   "city":{
        "type": "Property",
        "value": ["Santander" or "Barcelona" or "Malaga"]
    },

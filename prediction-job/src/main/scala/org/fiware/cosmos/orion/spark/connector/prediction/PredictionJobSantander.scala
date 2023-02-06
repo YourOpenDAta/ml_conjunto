@@ -48,7 +48,7 @@ class PredictionJobSantander extends Serializable {
   val dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
   var mongoIsNull = false
 
-  def request (ent: EntityLD, MONGO_USERNAME: String, MONGO_PASSWORD: String, nombreCiudad: String): PredictionRequest  = {
+  def request (ent: EntityLD, MONGO_USERNAME: String, MONGO_PASSWORD: String, cityName: String): PredictionRequest  = {
       dateTimeFormatter.setTimeZone(TimeZone.getTimeZone("UTC"))
       val idStation = ent.attrs("idStation")("value").toString
       val hour = ent.attrs("hour")("value").toString.toInt
@@ -94,7 +94,7 @@ class PredictionJobSantander extends Serializable {
         }
       }
           
-      return PredictionRequest(idStation, lastMeasure, tenHoursAgoMeasure, sixHoursAgoMeasure, nineHoursAgoMeasure, variationStation, weekday, hour, month, socketId, predictionId, nombreCiudad)
+      return PredictionRequest(idStation, lastMeasure, tenHoursAgoMeasure, sixHoursAgoMeasure, nineHoursAgoMeasure, variationStation, weekday, hour, month, socketId, predictionId, cityName)
   }
 
   def transform (rdd: RDD[PredictionRequest], spark: SparkSession): JavaRDD[Row] = {
@@ -115,7 +115,8 @@ class PredictionJobSantander extends Serializable {
         pred.get(3).toString,
         pred.get(4).toString.toInt,
         pred.get(5).toString.toInt,
-        pred.get(6).toString.toInt
+        pred.get(6).toString.toInt,
+        "Santander"
       )
     } else {
       return PredictionResponse(
@@ -125,7 +126,8 @@ class PredictionJobSantander extends Serializable {
         pred.get(3).toString,
         pred.get(4).toString.toInt,
         pred.get(5).toString.toInt,
-        pred.get(6).toString.toInt
+        pred.get(6).toString.toInt,
+        "Santander"
       )
     }
   }

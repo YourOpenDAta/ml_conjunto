@@ -3,11 +3,11 @@ curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:n
 --data-raw '{
    "idStation": {
       "type":"Property",
-      "value": "500"
+      "value": "1"
    },
    "weekday":{
       "type":"Property",
-      "value": 5
+      "value": 1
    },
    "hour":{
       "type":"Property",
@@ -17,7 +17,7 @@ curl --location --request PATCH 'http://localhost:1026/ngsi-ld/v1/entities/urn:n
        "type": "Property",
        "value": 2
    },
-   "ciudad":{
+   "city":{
        "type": "Property",
        "value": "Barcelona"
    },

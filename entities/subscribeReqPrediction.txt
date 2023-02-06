@@ -13,11 +13,11 @@ curl -v  localhost:1026/ngsi-ld/v1/subscriptions/ -s -S -H 'Content-Type: applic
       "month",
       "hour",
       "weekday",
-      "ciudad"
+      "city"
     ],
   "notification": {
     "endpoint": {
-      "uri": "http://spark-master-bike-conjunto:9002",
+      "uri": "http://spark-master-conjunto:9002",
       "accept": "application/json"
     }
   },
