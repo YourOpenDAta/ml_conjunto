@@ -168,6 +168,10 @@ Response:
    "month":{
       "type":"Property",
       "value": [VALUE set at the request]
+   },
+   "city":{
+      "type":"Property",
+      "value": [VALUE set at the request]
    }
 ```
 
