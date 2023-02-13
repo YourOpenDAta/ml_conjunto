@@ -224,6 +224,5 @@ curl --location --request GET 'http://138.4.22.130/ngsi-ld/v1/entities/urn:ngsi-
 
 Response:
 ```
-{
-   ...
+{...}
 ```
