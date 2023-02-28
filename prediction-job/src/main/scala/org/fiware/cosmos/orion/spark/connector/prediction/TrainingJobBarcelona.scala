@@ -15,16 +15,16 @@ object TrainingJobBarcelona {
   }
   
   def train() = {
-    // ocupation= round((1-available)*10)
     val schema = StructType(
-      Array(StructField("bicicletas_disponibles", IntegerType),
-            StructField("id_estacion", IntegerType),
-            StructField("Ultima_medicion", IntegerType),
-            StructField("Seishora_anterior", IntegerType),
-            StructField("Nuevehora_anterior", IntegerType),
-            StructField("dia", IntegerType),
-            StructField("hora", IntegerType),
-            StructField("variacion_estaciones", DoubleType)                 
+      Array(StructField("available_bikes", IntegerType),
+            StructField("id_station", IntegerType),
+            StructField("hour", IntegerType),
+            StructField("three_before", IntegerType),
+            StructField("six_before", IntegerType),
+            StructField("nine_before", IntegerType),
+            StructField("day", IntegerType),
+            StructField("blank", IntegerType),
+            StructField("comp", IntegerType)
       ))
     val spark = SparkSession
       .builder
@@ -44,22 +44,35 @@ object TrainingJobBarcelona {
 
               
     val vectorAssembler  = new VectorAssembler()
-      .setInputCols(Array("id_estacion", "Ultima_medicion", "Seishora_anterior","Nuevehora_anterior","dia","hora","variacion_estaciones"))
+      .setInputCols(Array("id_station", "three_before", "six_before","nine_before","hour"))
       .setOutputCol("features")
 
-    val vectorAssembler2 = vectorAssembler.setHandleInvalid("skip")
 
     val rfc = new DecisionTreeRegressor()
-      .setMaxDepth(8)
-      .setLabelCol("bicicletas_disponibles")
+      .setMaxDepth(10)
+      .setLabelCol("available_bikes")
       .setFeaturesCol("features")
 
-    val pipeline = new Pipeline().setStages(Array(vectorAssembler2,rfc))
+    val pipeline = new Pipeline().setStages(Array(vectorAssembler,rfc))
     val Array(trainingData,testData) = data.randomSplit(Array(0.8,0.2))
     val model = pipeline.fit(trainingData)
     val predictions = model.transform(testData)
 
-    predictions.select("prediction","bicicletas_disponibles", "id_estacion", "dia","hora").show(10)
+    predictions.select("prediction","available_bikes", "id_station", "three_before","six_before", "nine_before").show(10)
+
+    val evaluator = new RegressionEvaluator()
+      .setLabelCol("available_bikes")
+      .setPredictionCol("prediction")
+
+    val rmse = evaluator.setMetricName("rmse").evaluate(predictions)
+    println(s"rmse = $rmse")
+
+    val mae = evaluator.setMetricName("mae").evaluate(predictions)
+    println(s"mae = $mae")
+
+    val r2 = evaluator.setMetricName("r2").evaluate(predictions)
+    println(s"r2 = $r2")
+
 
     model
   }

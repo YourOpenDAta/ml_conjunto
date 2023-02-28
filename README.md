@@ -26,6 +26,10 @@
 docker network create ckan_yoda
 ```
 
+## Versions
+- Spark 2.4.5
+- Scala 2.11.12
+- Java 8
 
 ## Training
 

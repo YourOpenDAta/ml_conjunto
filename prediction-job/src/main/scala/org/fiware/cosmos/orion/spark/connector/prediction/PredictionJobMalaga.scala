@@ -10,13 +10,11 @@ import java.util.{Date, TimeZone}
 import java.text.SimpleDateFormat
 import org.apache.spark.sql.types.{StringType, DoubleType, StructField, StructType, IntegerType}
 import scala.io.Source
-import org.apache.spark.sql.functions.col
-//parámetro de la clase
+import org.apache.spark.sql.functions._
 import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.fiware.cosmos.orion.spark.connector.NgsiEventLD
 import org.fiware.cosmos.orion.spark.connector.EntityLD
 import org.apache.spark.rdd.RDD
-//devuelve el método
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.api.java.JavaRDD
 import org.apache.spark.sql.Row
@@ -51,28 +49,30 @@ class PredictionJobMalaga extends Serializable{
         }
 
         var lastMeasure: Int = 0
-        var sixHoursAgoMeasure: Int = 0
-        var nineHoursAgoMeasure: Int = 0
-        var tenHoursAgoMeasure: Int = 0
+        var twoLastMeasure: Int = 0
+        var threeLastMeasure: Int = 0
+        var fourLastMeasure: Int = 0
         
-        val variationStation: Double =  0.0
 
             
-        return PredictionRequest(idStation, lastMeasure, tenHoursAgoMeasure, sixHoursAgoMeasure, nineHoursAgoMeasure, variationStation, weekday, hour, month, socketId, predictionId, cityName)
+        return PredictionRequest(idStation, lastMeasure, twoLastMeasure, threeLastMeasure, fourLastMeasure, weekday, hour, month, socketId, predictionId, cityName, 1)
     }
 
     def transform (rdd: RDD[PredictionRequest], spark: SparkSession): JavaRDD[Row] = {
       val df = spark.createDataFrame(rdd)
-      val df2 = df
-                    .withColumnRenamed("id_estacion", "name")
-                    .withColumnRenamed("hora", "hour")
-                    .withColumnRenamed("dia", "weekday")
-                    .withColumnRenamed("num_mes", "month")
+      val df2 = df.withColumn("id_station", col("id_station").cast(IntegerType))
+      val df3 = df2
+                    .withColumnRenamed("id_station", "name")
+                    .withColumnRenamed("hour", "hour")
+                    .withColumnRenamed("day", "weekday")
                     .select("name", "hour", "weekday", "month", "socketId","predictionId")
         val predictions = modelMalaga
-          .transform(df2)
+          .transform(df3)
           .select("socketId","predictionId", "prediction", "name", "weekday", "hour", "month")
-          return predictions.toJavaRDD
+        
+        val predictionsFinal = predictions.withColumn("city", lit("Malaga"))
+        
+        return predictionsFinal.toJavaRDD
     }
 
     def response (pred: Row): PredictionResponse = {

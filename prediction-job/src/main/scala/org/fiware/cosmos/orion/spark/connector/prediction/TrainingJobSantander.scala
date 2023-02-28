@@ -5,7 +5,7 @@ import org.apache.spark.ml.evaluation.RegressionEvaluator
 import org.apache.spark.ml.feature.{VectorAssembler, VectorIndexer, StringIndexer, OneHotEncoder}
 import org.apache.spark.ml.regression._
 import org.apache.spark.sql.{DataFrame, SparkSession}
-import org.apache.spark.sql.types.{IntegerType, DoubleType, StructField, StructType}
+import org.apache.spark.sql.types.{StringType, IntegerType, DoubleType, StructField, StructType}
 
 object TrainingJobSantander {
 
@@ -15,16 +15,14 @@ object TrainingJobSantander {
   }
   
   def train() = {
-    // ocupation= round((1-available)*10)
     val schema = StructType(
-      Array(StructField("bicicletas_disponibles", IntegerType),
-            StructField("id_estacion", IntegerType),
-            StructField("Ultima_medicion", IntegerType),
-            StructField("Diezhora_anterior", IntegerType),
-            StructField("dia", IntegerType),
-            StructField("num_mes", IntegerType),
-            StructField("hora", IntegerType),
-            StructField("variacion_estaciones", DoubleType)                 
+      Array(StructField("available_bikes", IntegerType),
+            StructField("modified", StringType),      
+            StructField("id_station", IntegerType),
+            StructField("five_before", IntegerType),
+            StructField("ten_before", IntegerType),
+            StructField("fifteen_before", IntegerType),
+            StructField("twenty_before", IntegerType)            
       ))
     val spark = SparkSession
       .builder
@@ -44,23 +42,35 @@ object TrainingJobSantander {
 
               
     val vectorAssembler  = new VectorAssembler()
-      .setInputCols(Array("id_estacion", "Ultima_medicion", "Diezhora_anterior","dia","num_mes","hora","variacion_estaciones"))
+      .setInputCols(Array("id_station", "five_before","ten_before","fifteen_before","twenty_before"))
       .setOutputCol("features")
     
-    val vectorAssembler2 = vectorAssembler.setHandleInvalid("skip")
 
 
     val rfc = new DecisionTreeRegressor()
       .setMaxDepth(8)
-      .setLabelCol("bicicletas_disponibles")
+      .setLabelCol("available_bikes")
       .setFeaturesCol("features")
 
-    val pipeline = new Pipeline().setStages(Array(vectorAssembler2,rfc))
+    val pipeline = new Pipeline().setStages(Array(vectorAssembler,rfc))
     val Array(trainingData,testData) = data.randomSplit(Array(0.8,0.2))
     val model = pipeline.fit(trainingData)
     val predictions = model.transform(testData)
 
-    predictions.select("prediction","bicicletas_disponibles", "id_estacion", "dia","num_mes","hora").show(10)
+    predictions.select("prediction", "available_bikes", "id_station", "five_before","ten_before","fifteen_before","twenty_before").show(10)
+
+    val evaluator = new RegressionEvaluator()
+      .setLabelCol("available_bikes")
+      .setPredictionCol("prediction")
+
+    val rmse = evaluator.setMetricName("rmse").evaluate(predictions)
+    println(s"rmse = $rmse")
+
+    val mae = evaluator.setMetricName("mae").evaluate(predictions)
+    println(s"mae = $mae")
+
+    val r2 = evaluator.setMetricName("r2").evaluate(predictions)
+    println(s"r2 = $r2")
 
     model
   }

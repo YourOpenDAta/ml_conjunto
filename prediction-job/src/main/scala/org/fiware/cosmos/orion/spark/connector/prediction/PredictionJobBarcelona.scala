@@ -10,13 +10,11 @@ import java.util.{Date, TimeZone}
 import java.text.SimpleDateFormat
 import org.apache.spark.sql.types.{StringType, DoubleType, StructField, StructType, IntegerType}
 import scala.io.Source
-import org.apache.spark.sql.functions.col
-//parámetro de la clase
+import org.apache.spark.sql.functions._
 import org.apache.spark.streaming.dstream.ReceiverInputDStream
 import org.fiware.cosmos.orion.spark.connector.NgsiEventLD
 import org.fiware.cosmos.orion.spark.connector.EntityLD
 import org.apache.spark.rdd.RDD
-//devuelve el método
 import org.apache.spark.streaming.dstream.DStream
 import org.apache.spark.api.java.JavaRDD
 import org.apache.spark.sql.Row
@@ -39,7 +37,6 @@ class PredictionJobBarcelona extends Serializable{
       return lines
     }
 
-    val variationStationsBarcelona = readFile("./prediction-job/csv/array-load-bcn.txt")
     val BASE_PATH = "./prediction-job"
     val dateTimeFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
     val modelBarcelona = PipelineModel.load(BASE_PATH+"/model/barcelona") 
@@ -60,21 +57,11 @@ class PredictionJobBarcelona extends Serializable{
         val dateNineHoursBefore = dateTimeFormatter.format(new Date(System.currentTimeMillis() - 3600 * 1000 *9))
         val dateSixHoursBefore = dateTimeFormatter.format(new Date(System.currentTimeMillis() - 3600 * 1000 *6))
 
-        var lastMeasure: Int = 5
-        var sixHoursAgoMeasure: Int = 6
-        var nineHoursAgoMeasure: Int = 7
-        var tenHoursAgoMeasure: Int = 8
-        var variationStation: Double = 0
+        var lastMeasure: Int = 0
+        var nineHoursAgoMeasure: Int = 0
+        var sixHoursAgoMeasure: Int = 0
+        var threeHoursAgoMeasure: Int = 0
         
-        val num = (idStation.toInt - 1 )
-        val idVariationStation = num * 24 + hour
-        try{
-        variationStation = variationStationsBarcelona(idVariationStation).toString.toDouble
-        } catch {
-          case a: java.lang.IndexOutOfBoundsException => {
-            println("IndexOutOfBoundsException: idStation value is not correct")
-          }
-        }
 
         val mongoUri = s"mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo:27017/bikes_barcelona.historical?authSource=admin"
         val mongoClient = MongoClients.create(mongoUri);
@@ -97,17 +84,44 @@ class PredictionJobBarcelona extends Serializable{
           }
         }
         
-         return PredictionRequest(idStation, lastMeasure, tenHoursAgoMeasure, sixHoursAgoMeasure, nineHoursAgoMeasure, variationStation, weekday, hour, month, socketId, predictionId, cityName)
+         return PredictionRequest(idStation, lastMeasure, threeHoursAgoMeasure, sixHoursAgoMeasure, nineHoursAgoMeasure, weekday, hour, month, socketId, predictionId, cityName, 1)
          
     }
 
-    def transform (rdd: RDD[PredictionRequest], spark: SparkSession): JavaRDD[Row] = {
+    def transform (rdd: RDD[PredictionRequest], numberOfIterations: Int,  spark: SparkSession): JavaRDD[Row] = {
       val df = spark.createDataFrame(rdd)
-      val df1 = df.withColumn("id_estacion", col("id_estacion").cast(IntegerType))
+      val df1 = df.withColumn("id_station", col("id_station").cast(IntegerType))
+      val df2 = df1
+                    .withColumnRenamed("last_measure", "three_before")
+                    .withColumnRenamed("two_last_measure", "six_before")
+                    .withColumnRenamed("three_last_measure", "nine_before")
       val predictions = modelBarcelona
-      .transform(df1)
-      .select("socketId","predictionId", "prediction", "id_estacion", "dia", "hora", "num_mes")
-      return predictions.toJavaRDD
+        .transform(df2)
+        .select("socketId","predictionId", "prediction", "id_station", "day", "hour", "month")
+      
+      val predictionsFinal = predictions.withColumn("city", lit("Barcelona"))
+      
+      if (numberOfIterations > 9 || numberOfIterations <= 1) {
+      // only predictions in the following 24 hours
+      return predictionsFinal.toJavaRDD
+      } else {
+        val previousPredictionRequest = rdd.first()
+        val nextPredictionRequest = PredictionRequest(
+          previousPredictionRequest.id_station,
+          predictions.head().get(2).toString.toFloat.round,
+          previousPredictionRequest.last_measure,
+          previousPredictionRequest.two_last_measure,
+          previousPredictionRequest.three_last_measure,
+          previousPredictionRequest.day,
+          previousPredictionRequest.hour,
+          previousPredictionRequest.month,
+          previousPredictionRequest.socketId,
+          previousPredictionRequest.predictionId,
+          previousPredictionRequest.city,
+          numberOfIterations-1
+        )
+          return transform(spark.sparkContext.parallelize(List(nextPredictionRequest)), numberOfIterations-1, spark)
+      }
     }
 
     def response (pred: Row): PredictionResponse = {
@@ -135,4 +149,4 @@ class PredictionJobBarcelona extends Serializable{
         )
       }
     } 
-   } 
+  } 

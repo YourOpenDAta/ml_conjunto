@@ -15,6 +15,8 @@ import org.mongodb.scala.model.Filters.{equal, gt, and}
 import com.mongodb.client.MongoClients
 import com.mongodb.client.model.Sorts
 
+import java.util.{Date, TimeZone}
+
 import prediction.PredictionJobSantander
 import prediction.PredictionJobBarcelona
 import prediction.PredictionJobMalaga
@@ -33,11 +35,10 @@ case class PredictionResponse(socketId: String, predictionId: String, prediction
   }""".trim()
 }
 
-case class PredictionRequest(id_estacion: String, Ultima_medicion: Int, Diezhora_anterior: Int, Seishora_anterior: Int, Nuevehora_anterior: Int, variacion_estaciones: Double, dia: Int, hora: Int, num_mes: Int, socketId: String, predictionId: String, city: String)
+case class PredictionRequest(id_station: String, last_measure: Int, two_last_measure: Int, three_last_measure: Int, four_last_measure: Int, day: Int, hour: Int, month: Int, socketId: String, predictionId: String, city: String, numberOfIterations: Int)
 
 object PredictionJob {
 
-  var cityName = "Santander"
   final val URL_CB = "http://orion:1026/ngsi-ld/v1/entities/urn:ngsi-ld:ResPrediction1/attrs"
   final val CONTENT_TYPE = ContentType.JSON
   final val METHOD = HTTPMethod.PATCH
@@ -55,13 +56,12 @@ object PredictionJob {
 
     spark.sparkContext.setLogLevel("WARN")
     
-    println("STARTING BIKE CONJUNTO....")
+    println("STARTING PREDICTION SYSTEM....")
     
     val ssc = new StreamingContext(spark.sparkContext, Seconds(1))
 
     val eventStream = ssc.receiverStream(new NGSILDReceiver(9002))
 
-    var cityName: String = ""
     var pred1 = new PredictionJobBarcelona()
     var pred2 = new PredictionJobSantander()
     var pred3 = new PredictionJobMalaga()
@@ -69,13 +69,15 @@ object PredictionJob {
       .flatMap(event => event.entities)
       .map(ent => {
           println(s"ENTITY RECEIVED: $ent")
-          cityName = ent.attrs("city")("value").toString
+          val cityName = ent.attrs("city")("value").toString      
           if (cityName == "Barcelona") {
              pred1.request(ent, MONGO_USERNAME, MONGO_PASSWORD, cityName)
            } else if (cityName == "Malaga"){
              pred3.request(ent, MONGO_USERNAME, MONGO_PASSWORD, cityName)
-           } else {
+           } else if (cityName == "Santander") {
              pred2.request(ent, MONGO_USERNAME, MONGO_PASSWORD, cityName)
+           } else {
+            pred3.request(ent, MONGO_USERNAME, MONGO_PASSWORD, cityName)
            }
           
         })
@@ -83,21 +85,39 @@ object PredictionJob {
     // Feed each entity into the prediction model
     val predictionDataStream = processedDataStream
       .transform(rdd => {
-           if (cityName == "Barcelona") {
-             pred1.transform(rdd, spark)
-           } else if (cityName == "Malaga"){
+           val df = rdd.toDF
+           val hoursNow = new Date(System.currentTimeMillis()).getHours().toInt
+           var city = "Santander"
+           var hour: Int = 0
+           try {
+            city = df.head().get(10).toString
+            hour = df.head.get(6).toString.toInt
+           } catch {
+            case _ => city = "Other"
+           }
+          
+           if (city == "Barcelona") {
+             val numberOfIterations = (if (hoursNow <= hour) hour - hoursNow else hour + 24 - hoursNow)/3.toInt + 1
+             pred1.transform(rdd, numberOfIterations, spark)
+           } else if (city == "Malaga"){
              pred3.transform(rdd, spark)
+           } else if (city == "Santander") {
+            val numberOfIterations = (if (hoursNow <= hour) hour - hoursNow else hour + 24 - hoursNow)/5.toInt + 1
+            pred2.transform(rdd, numberOfIterations, spark)
            } else {
-             pred2.transform(rdd, spark)
+            pred2.transform(rdd, 1, spark)
            }
       })
       .map(pred=> {
-           if (cityName == "Barcelona") {
+          val city = pred.get(7).toString
+           if (city == "Barcelona") {
              pred1.response(pred)
-           } else if (cityName == "Malaga"){
+           } else if (city == "Malaga"){
              pred3.response(pred)
-           } else {
+           } else if (city == "Santander") {
              pred2.response(pred)
+           } else {
+            pred2.response(pred)
            }     
       })
       
