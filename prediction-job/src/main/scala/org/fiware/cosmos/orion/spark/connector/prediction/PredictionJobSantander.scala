@@ -68,9 +68,9 @@ class PredictionJobSantander extends Serializable {
       val mongoUri = s"mongodb://${MONGO_USERNAME}:${MONGO_PASSWORD}@mongo:27017/bikes_santander.historical?authSource=admin"
       val mongoClient = MongoClients.create(mongoUri);
       val collection = mongoClient.getDatabase("bikes_santander").getCollection("historical")
-      val filter1 = and(gt("update_date", dateFifteenHoursBefore), equal("station_id", idStation.toString))
+      val filter1 = and(gt("update_date", dateFifteenHoursBefore), equal("dc:identifier", idStation.toString))
       val filter2 = and(gt("update_date", dateTenHoursBefore), equal("dc:identifier", idStation.toString))
-      val filter3 = and(gt("update_date", dateFiveHoursBefore), equal("station_id", idStation.toString))
+      val filter3 = and(gt("update_date", dateFiveHoursBefore), equal("dc:identifier", idStation.toString))
       val docs1 = collection.find(filter1)
       val docs2 = collection.find(filter2)
       val docs3 = collection.find(filter3)
