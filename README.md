@@ -225,7 +225,36 @@ curl --location --request GET 'http://138.4.22.130/ngsi-ld/v1/entities/urn:ngsi-
 ```
 curl --location --request PATCH 'http://138.4.22.130/ngsi-ld/v1/entities/urn:ngsi-ld:ReqPrediction1/attrs' \
 --header 'Content-Type: application/json' \
---data-raw '{...}'
+--data-raw '{
+   "idStation": {
+      "type":"Property",
+      "value": "1"
+   },
+   "weekday":{
+      "type":"Property",
+      "value": 3
+   },
+   "hour":{
+      "type":"Property",
+      "value": 20
+   },
+   "month":{
+       "type": "Property",
+       "value": 3
+   },
+   "city":{
+       "type": "Property",
+       "value": "Barcelona"
+   },
+   "predictionId":{
+      "type":"Property",
+      "value":"p-1662768034900"
+   },
+   "socketId":{
+      "type":"Property",
+      "value":"Fn0kKHEF-dOcr311AAAF"
+   }
+}'
 ```
 
 3) See if the `ResPrediction1` changes
@@ -236,5 +265,41 @@ curl --location --request GET 'http://138.4.22.130/ngsi-ld/v1/entities/urn:ngsi-
 
 Response:
 ```
-{...}
+{
+    "@context": "https://uri.etsi.org/ngsi-ld/v1/ngsi-ld-core-context.jsonld",
+    "id": "urn:ngsi-ld:ResPrediction1",
+    "type": "ResPrediction",
+    "socketId": {
+        "type": "Property",
+        "value": "Fn0kKHEF-dOcr311AAAF"
+    },
+    "predictionId": {
+        "type": "Property",
+        "value": "p-1662768034900"
+    },
+    "predictionValue": {
+        "type": "Property",
+        "value": 10
+    },
+    "idStation": {
+        "type": "Property",
+        "value": "1"
+    },
+    "weekday": {
+        "type": "Property",
+        "value": 3
+    },
+    "hour": {
+        "type": "Property",
+        "value": 20
+    },
+    "month": {
+        "type": "Property",
+        "value": 3
+    },
+    "city": {
+        "type": "Property",
+        "value": "Barcelona"
+    }
+}
 ```
